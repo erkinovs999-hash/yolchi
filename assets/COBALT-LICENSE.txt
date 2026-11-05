@@ -1,0 +1,13 @@
+Chevrolet Cobalt LTZ 2014
+Author: Q.SARDOR (https://sketchfab.com/qsardor57913)
+Source: https://sketchfab.com/3d-models/chevrolet-cobalt-ltz-2014-f91cbef731444f939e263041400216ca
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+
+Supplied by the user for integration into BTS Drive Club.
+Adaptation: uniform meter scale and ground alignment; four independent wheel
+pivots; removal of twelve overlapping full-wheel export copies; material
+batching; gzip compression. Original body, cabin, rims and lamp geometry are
+retained. Runtime materials add selectable paint, transparent lamp glazing,
+white headlamps and red brake lamps. No claim of author endorsement.
+Prepared asset retains author, license, source and original SHA-256 metadata.

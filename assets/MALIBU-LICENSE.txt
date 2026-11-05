@@ -1,0 +1,20 @@
+2019 Chevrolet Malibu Premier
+Original model by Ddiaz Design
+https://sketchfab.com/ddiaz-design
+https://sketchfab.com/3d-models/2019-chevrolet-malibu-premier-507a7761496748bb933cf7863f49a991
+
+License: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+Legal code: https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+
+Supplied by the user as 2019_chevrolet_malibu_premier.glb.
+Adapted for BTS Drive Club: uniform meter scale, -Z forward orientation,
+ground alignment, separate wheel/steering pivots, batching by material,
+gzip packaging, adjustable paint, headlamp and brake-light materials.
+Original triangle geometry, interior, UVs and embedded texture bytes retained.
+The adapted model remains available under CC BY-NC-SA 4.0.
+
+Credit the original author, link the license, and indicate changes.
+Noncommercial use only. Distribute adaptations under the same license.
+No endorsement by the model author or Chevrolet is implied.
+The CC license applies to this model, not to unrelated game assets or code.
