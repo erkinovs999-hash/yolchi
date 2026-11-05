@@ -25,7 +25,7 @@
     var p = location.pathname.replace(/\/+$/, '') || '/';
     root.setAttribute('data-page', p === '/race' ? 'race' : p === '/exam' ? 'exam' : 'truck');
     var link = document.createElement('link');
-    link.rel = 'stylesheet'; link.href = '/mobile.css?v=3';
+    link.rel = 'stylesheet'; link.href = '/mobile.css?v=4';
     (document.head || root).appendChild(link);
 
     var mount = function () {
