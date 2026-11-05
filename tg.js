@@ -17,29 +17,16 @@
       '#yolchi-rotate small{font-weight:400;font-size:14px;opacity:.65;max-width:260px}',
       '#yolchi-rotate svg{width:84px;height:84px;animation:yolchi-turn 2.2s ease-in-out infinite}',
       '@keyframes yolchi-turn{0%,25%{transform:rotate(0)}55%,100%{transform:rotate(-90deg)}}',
-      '@media (orientation:portrait){html.yolchi-phone #yolchi-rotate{display:flex}}',
-
-      /* Telegram to'liq ekranda: tepadagi Telegram tugmalari va "chelka" ostida qolmaslik */
-      'html.tg-fs{--yt:calc(var(--tg-safe-area-inset-top,0px) + var(--tg-content-safe-area-inset-top,0px));--yb:var(--tg-safe-area-inset-bottom,0px);--yl:var(--tg-safe-area-inset-left,0px);--yr:var(--tg-safe-area-inset-right,0px)}',
-      'html.tg-fs :is(header,.topbar){left:var(--yl)!important;right:var(--yr)!important}',
-      /* tepada: chapga, o'rtada, o'ngga yopishgan panellar */
-      'html.tg-fs :is(header,.topbar,.top-status,#toast,.menu,.scene-label,#render-note){translate:0 var(--yt)}',
-      'html.tg-fs :is(.mission-panel,.menu-overlay,.race-heading,.leaderboard,.lobby-panel,.menu-panel,.task-card){translate:var(--yl) var(--yt)}',
-      'html.tg-fs :is(.map-panel,.mini-panel,.map-card,.score-bar,.car-caption){translate:calc(-1*var(--yr)) var(--yt)}',
-      'html.tg-fs .topbar{box-shadow:0 calc(-1*var(--yt)) 0 0 var(--yolchi-bar,transparent)}',
-      'html.tg-fs :is(.menu-card,.menu-panel,.lobby-panel){max-height:calc(100dvh - 110px - var(--yt))!important}',
-      'html.tg-fs .menu{padding-bottom:calc(20px + var(--yt))!important;padding-left:calc(23px + var(--yl))!important}',
-      /* pastda */
-      'html.tg-fs :is(.dashboard,.speedometer,.garage-footer,.keyboard-hint,.keyboard-tip){translate:0 calc(-1*var(--yb))}',
-      'html.tg-fs .bottom-left{translate:var(--yl) calc(-1*var(--yb))}',
-      'html.tg-fs :is(.camera-panel,.race-actions,.actions){translate:calc(-1*var(--yr)) calc(-1*var(--yb))}',
-      'html.tg-fs .touch-controls{translate:0 calc(-1*var(--yb))}',
-      'html.tg-fs .task-card{max-width:calc(50vw - 165px - var(--yl));box-sizing:border-box}',
-      'html.tg-fs .touch-controls{padding-left:var(--yl);padding-right:var(--yr)}'
+      '@media (orientation:portrait){html.yolchi-phone #yolchi-rotate{display:flex}}'
     ].join('');
     (document.head || root).appendChild(css);
 
-    var bar = { '/exam': '#f4f5ec' };
+    // Gorizontal "o'yin" ko'rinishi: mobile.css (sahifa turi bo'yicha)
+    var p = location.pathname.replace(/\/+$/, '') || '/';
+    root.setAttribute('data-page', p === '/race' ? 'race' : p === '/exam' ? 'exam' : 'truck');
+    var link = document.createElement('link');
+    link.rel = 'stylesheet'; link.href = '/mobile.css?v=2';
+    (document.head || root).appendChild(link);
 
     var mount = function () {
       if (document.getElementById('yolchi-rotate')) return;
@@ -54,8 +41,6 @@
         Promise.resolve(p).then(function () { return screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'); }).catch(function () {});
       });
       document.body.appendChild(el);
-      var key = (location.pathname.replace(/\/+$/, '') || '/');
-      if (bar[key]) root.style.setProperty('--yolchi-bar', bar[key]);
     };
     if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
   }

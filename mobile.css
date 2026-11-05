@@ -1,0 +1,213 @@
+/* Yo'lchi — telefonda gorizontal "o'yin" ko'rinishi.
+   tg.js telefonlarda <html class="yolchi-phone" data-page="truck|race|exam"> qo'yadi,
+   Telegram to'liq ekranda esa "tg-fs" klassini qo'shadi.
+   Tepa qator Telegram'ning Back / ⌄⋮ tugmalari bilan bir qatorda turadi. */
+
+html.yolchi-phone {
+  --st: env(safe-area-inset-top, 0px);
+  --row: 44px;
+  --yl: env(safe-area-inset-left, 0px);
+  --yr: env(safe-area-inset-right, 0px);
+  --yb: env(safe-area-inset-bottom, 0px);
+  --pl: calc(var(--yl) + 12px);            /* tepa qatorning chap chegarasi */
+  --pr: calc(var(--yr) + 12px);            /* tepa qatorning o'ng chegarasi */
+  --sl: calc(var(--yl) + 12px);            /* panellar uchun chap/o'ng chekka */
+  --sr: calc(var(--yr) + 12px);
+  --bar: var(--row);
+  --hud: calc(var(--st) + var(--bar) + 6px);   /* tepa qatordan keyingi birinchi qator */
+  --tl: calc(var(--yl) + 150px);           /* bildirishnoma: brauzerda logodan keyin */
+  --glass: rgba(14, 26, 34, .62);
+  --glass-line: rgba(255, 255, 255, .14);
+}
+html.yolchi-phone.tg-fs {
+  --st: var(--tg-safe-area-inset-top, 0px);
+  --row: max(var(--tg-content-safe-area-inset-top, 0px), 30px);
+  --yl: var(--tg-safe-area-inset-left, 0px);
+  --yr: var(--tg-safe-area-inset-right, 0px);
+  --yb: var(--tg-safe-area-inset-bottom, 0px);
+  --pl: calc(var(--yl) + 70px);            /* Telegram "Back/Close" tugmasidan keyin */
+  --pr: calc(var(--yr) + 74px);            /* Telegram "⌄ ⋮" tugmasidan oldin */
+  --tl: calc(var(--pl) + 6px);
+}
+
+@media (orientation: landscape) {
+
+  /* ---------- Umumiy: tepa qator ---------- */
+  html.yolchi-phone :is(header, .topbar) {
+    position: fixed !important; top: var(--st) !important; left: 0 !important; right: 0 !important;
+    height: var(--bar) !important; padding: 0 var(--pr) 0 var(--pl) !important;
+    background: none !important; border: 0 !important; box-shadow: none !important; gap: 6px !important;
+    pointer-events: none; z-index: 30;
+  }
+  html.yolchi-phone :is(header, .topbar) :is(button, a) { pointer-events: auto; }
+  html.yolchi-phone.tg-fs :is(header .brand, .topbar .brand, .top-meta, .top-center, header .location, #fullscreen, nav a) { display: none !important; }
+  html.yolchi-phone :is(.header-actions, .topbar nav) { margin-left: auto; gap: 6px !important; display: flex; align-items: center; }
+  html.yolchi-phone :is(.icon-button, .icon-btn, .topbar .icon) {
+    width: 30px !important; height: 30px !important; min-width: 30px; padding: 0 !important; border-radius: 50% !important;
+    background: var(--glass) !important; border: 1px solid var(--glass-line) !important; color: #fff !important;
+    font-size: 14px !important; backdrop-filter: blur(10px);
+  }
+  html.yolchi-phone .icon-button svg { width: 16px; height: 16px; }
+  html.yolchi-phone[data-page="exam"] .topbar .icon { background: rgba(255, 255, 255, .78) !important; color: #20392e !important; border-color: rgba(32, 57, 46, .15) !important; }
+  html.yolchi-phone:not(.tg-fs) :is(header .brand, .topbar .brand) { transform: scale(.72); transform-origin: left center; }
+  html.yolchi-phone:not(.tg-fs) :is(.top-meta, .top-center, header .location) { display: none !important; }
+  html.yolchi-phone[data-page="race"] body:not([data-phase="menu"]) .topbar .brand { display: none !important; }
+
+  /* Bildirishnomalar: markazda kichik "pill" */
+  html.yolchi-phone :is(#toast, .top-status) {
+    top: calc(var(--st) + (var(--bar) - 30px) / 2) !important; min-height: 30px; box-sizing: border-box;
+    left: var(--tl) !important; right: calc(var(--pr) + var(--row-icons, 80px)) !important;
+    width: fit-content !important; max-width: none !important; margin-inline: auto !important; transform: none !important;
+    display: flex; align-items: center; font-size: 11px !important; line-height: 1.25 !important; padding: 5px 14px !important; border-radius: 999px !important;
+  }
+  html.yolchi-phone[data-page="truck"] { --row-icons: calc(4 * 36px + 6px); }
+  html.yolchi-phone[data-page="exam"]  { --row-icons: calc(36px + 230px); }
+  html.yolchi-phone[data-page="race"] #toast {
+    top: var(--hud) !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; max-width: min(300px, 46vw) !important;
+  }
+
+  /* Pastki boshqaruv tugmalari: chekkalardan */
+  html.yolchi-phone .touch-controls { left: var(--sl) !important; right: var(--sr) !important; bottom: calc(var(--yb) + 10px) !important; }
+
+  /* ================= YUK MASHINASI ================= */
+  html.yolchi-phone[data-page="truck"] .menu-overlay {
+    padding: var(--hud) var(--sr) 8px var(--sl) !important; justify-content: flex-start !important; align-items: flex-start !important;
+  }
+  html.yolchi-phone[data-page="truck"] .menu-card {
+    width: min(470px, 100%) !important; max-height: calc(100dvh - var(--hud) - 8px) !important; overflow-y: auto;
+    padding: 12px 14px !important; border-radius: 14px !important;
+  }
+  html.yolchi-phone[data-page="truck"] .menu-card :is(.eyebrow, #menu-description, .menu-controls, .menu-foot) { display: none !important; }
+  html.yolchi-phone[data-page="truck"] .menu-card h2 { font-size: 19px !important; margin: 0 0 9px !important; }
+  html.yolchi-phone[data-page="truck"] .mission-options { gap: 6px !important; }
+  html.yolchi-phone[data-page="truck"] .mission-options button { padding: 7px 9px !important; }
+  html.yolchi-phone[data-page="truck"] .mission-options b { font-size: 12px !important; }
+  html.yolchi-phone[data-page="truck"] .mission-options small { display: none !important; }
+  html.yolchi-phone[data-page="truck"] .mission-options span { font-size: 10px !important; }
+  html.yolchi-phone[data-page="truck"] .menu-card { display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; }
+  html.yolchi-phone[data-page="truck"] .menu-card > :is(h2, .mission-options, #play, .load-track) { flex-basis: 100%; }
+  html.yolchi-phone[data-page="truck"] .race-entry { flex: 1 1 0; min-width: 0; margin: 2px 0 0 !important; padding: 7px 10px !important; }
+  html.yolchi-phone[data-page="truck"] .race-entry span { font-size: 9px !important; }
+  html.yolchi-phone[data-page="truck"] .race-entry b { font-size: 12px !important; }
+  html.yolchi-phone[data-page="truck"] .race-entry small { display: none !important; }
+  html.yolchi-phone[data-page="truck"] #play { min-height: 38px !important; margin-top: 4px !important; font-size: 14px !important; }
+
+  html.yolchi-phone[data-page="truck"] .mission-panel {
+    top: var(--hud) !important; left: var(--sl) !important; width: 196px !important; padding: 9px 11px !important; border-radius: 11px !important;
+  }
+  html.yolchi-phone[data-page="truck"] .mission-panel h1 { font-size: 14px !important; margin: 5px 0 3px !important; }
+  html.yolchi-phone[data-page="truck"] .mission-panel p { font-size: 10.5px !important; min-height: 0 !important; margin: 0 0 4px !important; }
+  html.yolchi-phone[data-page="truck"] .mission-panel .eyebrow { font-size: 9px !important; }
+  html.yolchi-phone[data-page="truck"] .mission-metrics { font-size: 10px !important; }
+  html.yolchi-phone[data-page="truck"] .mission-metrics b { font-size: 16px !important; }
+  html.yolchi-phone[data-page="truck"] .map-panel { top: var(--hud) !important; right: var(--sr) !important; width: 104px !important; padding: 6px !important; border-radius: 11px !important; }
+  html.yolchi-phone[data-page="truck"] .map-panel canvas { width: 92px !important; height: 92px !important; }
+  html.yolchi-phone[data-page="truck"] .map-panel :is(.map-title, .map-legend) { font-size: 8px !important; }
+  html.yolchi-phone[data-page="truck"] .camera-panel {
+    position: fixed !important; top: calc(var(--st) + (var(--bar) - 30px) / 2) !important; bottom: auto !important;
+    right: calc(var(--pr) + 2 * 36px) !important; flex-direction: row !important; gap: 6px !important;
+    padding: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; backdrop-filter: none !important; z-index: 31;
+  }
+  html.yolchi-phone[data-page="truck"] .camera-panel button {
+    width: 30px; height: 30px; padding: 0 !important; display: grid !important; place-items: center; border-radius: 50% !important;
+    background: var(--glass) !important; border: 1px solid var(--glass-line) !important; color: #fff !important; backdrop-filter: blur(10px);
+  }
+  html.yolchi-phone[data-page="truck"] .camera-panel :is(kbd, span) { display: none !important; }
+  html.yolchi-phone[data-page="truck"] .camera-panel svg { width: 15px !important; height: 15px !important; margin: 0 !important; }
+  html.yolchi-phone[data-page="truck"] .dashboard { zoom: .72; bottom: calc((var(--yb) + 10px) / .72) !important; }
+  html.yolchi-phone[data-page="truck"] .finish-card { zoom: .78; }
+
+  /* ================= POYGA ================= */
+  html.yolchi-phone[data-page="race"] :is(.car-caption, .garage-footer, .keyboard-hint, #race-mode) { display: none !important; }
+  html.yolchi-phone[data-page="race"] .garage { background: linear-gradient(90deg, rgba(17, 30, 39, .92), rgba(17, 30, 39, .55) 48%, transparent 75%) !important; overflow: hidden !important; }
+  html.yolchi-phone[data-page="race"] :is(.menu-panel, .lobby-panel) {
+    position: absolute !important; top: var(--hud) !important; left: var(--sl) !important; transform: none !important; margin: 0 !important;
+    width: min(320px, 52vw) !important; max-height: calc(100dvh - var(--hud) - 8px) !important; overflow-y: auto !important; padding: 2px 4px 10px 0 !important;
+  }
+  html.yolchi-phone[data-page="race"] .menu-panel :is(.eyebrow, .intro, .small-note:not(.model-status)) { display: none !important; }
+  html.yolchi-phone[data-page="race"] .menu-panel h1 { font-size: 21px !important; line-height: 1.1 !important; margin: 0 0 8px !important; }
+  html.yolchi-phone[data-page="race"] .field-label { margin: 8px 0 5px !important; font-size: 9px !important; }
+  html.yolchi-phone[data-page="race"] #nickname { height: 34px !important; font-size: 13px !important; }
+  html.yolchi-phone[data-page="race"] .car-choice { min-height: 0 !important; padding: 7px 9px !important; }
+  html.yolchi-phone[data-page="race"] .car-choice strong { font-size: 13px !important; }
+  html.yolchi-phone[data-page="race"] .car-choice :is(small, .car-number) { font-size: 9px !important; margin: 0 !important; }
+  html.yolchi-phone[data-page="race"] .color-row { margin: 8px 0 !important; }
+  html.yolchi-phone[data-page="race"] .menu-panel {
+    width: calc(100vw - var(--sl) - var(--sr)) !important; max-height: none !important; overflow: visible !important; pointer-events: none !important;
+  }
+  html.yolchi-phone[data-page="race"] .menu-panel > * { max-width: min(300px, 50vw); pointer-events: auto; }
+  html.yolchi-phone[data-page="race"] .menu-panel > :is(#create, .join-row, .solo-link) {
+    position: fixed !important; right: var(--sr) !important; width: min(220px, 34vw) !important; max-width: none; margin: 0 !important; box-sizing: border-box;
+  }
+  html.yolchi-phone[data-page="race"] .menu-panel > #create { bottom: calc(var(--yb) + 92px) !important; min-height: 40px !important; font-size: 13px !important; }
+  html.yolchi-phone[data-page="race"] .menu-panel > .join-row { bottom: calc(var(--yb) + 50px) !important; }
+  html.yolchi-phone[data-page="race"] .join-row :is(input, button) { height: 36px !important; font-size: 12px !important; min-width: 0; }
+  html.yolchi-phone[data-page="race"] .join-row input { flex: 1 1 0; }
+  html.yolchi-phone[data-page="race"] .menu-panel > .solo-link {
+    bottom: calc(var(--yb) + 10px) !important; height: 34px; padding: 0 12px !important; font-size: 12px !important;
+    border-radius: 8px; background: var(--glass) !important; border: 1px solid var(--glass-line) !important; backdrop-filter: blur(10px);
+  }
+  html.yolchi-phone[data-page="race"] .lobby-panel h2 { font-size: 19px !important; }
+
+  /* Poyga HUD: aylana va vaqt — tepa qatorda, Back tugmasidan keyin */
+  html.yolchi-phone[data-page="race"] .race-heading {
+    position: fixed !important; top: var(--st) !important; left: var(--pl) !important; height: var(--bar); z-index: 31;
+    display: flex !important; align-items: center; gap: 8px; padding: 0 12px; margin: 0 !important;
+    background: var(--glass); border: 1px solid var(--glass-line); border-radius: 999px; backdrop-filter: blur(10px); text-shadow: none !important;
+    max-height: 30px; top: calc(var(--st) + (var(--bar) - 30px) / 2) !important;
+  }
+  html.yolchi-phone[data-page="race"] .race-heading strong { font-size: 15px !important; line-height: 1 !important; display: flex; align-items: baseline; gap: 3px; }
+  html.yolchi-phone[data-page="race"] .race-heading strong span { font-size: 10px !important; }
+  html.yolchi-phone[data-page="race"] .race-heading strong small { display: none !important; }
+  html.yolchi-phone[data-page="race"] #race-time { font-size: 12px !important; margin: 0 !important; opacity: .85; }
+  html.yolchi-phone[data-page="race"] .leaderboard { top: var(--hud) !important; left: var(--sl) !important; min-width: 0 !important; width: 150px; padding: 5px 8px !important; font-size: 10px !important; border-radius: 9px !important; }
+  html.yolchi-phone[data-page="race"] .leaderboard li { padding: 2px 0 !important; }
+  html.yolchi-phone[data-page="race"] .mini-panel { top: var(--hud) !important; right: var(--sr) !important; width: 118px !important; padding: 5px 6px 2px !important; border-radius: 10px !important; }
+  html.yolchi-phone[data-page="race"] .mini-panel > div { font-size: 7.5px !important; }
+  html.yolchi-phone[data-page="race"] #minimap { width: 106px !important; height: 81px !important; }
+  /* Faralar / Yo'lga qaytish / Chiqish — tepa qatorda, ikonkalar oldida */
+  html.yolchi-phone[data-page="race"] .race-actions {
+    position: fixed !important; top: calc(var(--st) + (var(--bar) - 30px) / 2) !important; bottom: auto !important;
+    right: calc(var(--pr) + 3 * 36px) !important; height: 30px; gap: 5px !important; z-index: 31; flex-direction: row !important;
+  }
+  html.yolchi-phone[data-page="race"] .race-actions .chip { height: 30px; padding: 0 10px !important; border-radius: 999px !important; background: var(--glass) !important; border: 1px solid var(--glass-line) !important; font-size: 10px !important; backdrop-filter: blur(10px); }
+  html.yolchi-phone[data-page="race"] .race-actions kbd { display: none !important; }
+  html.yolchi-phone[data-page="race"] .speedometer { zoom: .74; bottom: calc((var(--yb) + 10px) / .74) !important; }
+  html.yolchi-phone[data-page="race"] .countdown { font-size: 64px !important; }
+  html.yolchi-phone[data-page="race"] :is(.results-panel, .compact-panel) { zoom: .8; }
+
+  /* ================= AVTODROM ================= */
+  html.yolchi-phone[data-page="exam"] .menu {
+    top: 0 !important; bottom: 0 !important; left: 0 !important; translate: none !important;
+    width: calc(min(300px, 50vw) + var(--yl)) !important;
+    padding: var(--hud) 16px 12px calc(var(--yl) + 16px) !important;
+  }
+  html.yolchi-phone.tg-fs[data-page="exam"] .menu { padding-left: calc(var(--yl) + 16px) !important; }
+  html.yolchi-phone[data-page="exam"] .menu :is(.eyebrow, .intro, .course-stats, .menu-note, .menu-footer) { display: none !important; }
+  html.yolchi-phone[data-page="exam"] .menu h1 { font-size: 22px !important; margin: 0 0 10px !important; line-height: 1.1 !important; }
+  html.yolchi-phone[data-page="exam"] .menu .label { margin: 8px 0 5px !important; font-size: 9px !important; }
+  html.yolchi-phone[data-page="exam"] .menu select { height: 36px !important; padding: 0 10px !important; font-size: 12px !important; line-height: 36px !important; }
+  html.yolchi-phone[data-page="exam"] .mode-switch button { padding: 6px !important; font-size: 12px !important; }
+  html.yolchi-phone[data-page="exam"] .menu .primary { min-height: 38px !important; margin-top: 10px !important; font-size: 13px !important; }
+  html.yolchi-phone[data-page="exam"] .model-status { font-size: 10px !important; margin-top: 6px !important; }
+  html.yolchi-phone[data-page="exam"] .scene-label { display: none !important; }
+
+  html.yolchi-phone[data-page="exam"] .task-card { top: var(--hud) !important; left: var(--sl) !important; width: 200px !important; max-width: none !important; padding: 9px 11px 7px !important; translate: none !important; }
+  html.yolchi-phone[data-page="exam"] .task-card h2 { font-size: 14px !important; margin: 4px 0 !important; }
+  html.yolchi-phone[data-page="exam"] .task-card p { font-size: 10px !important; line-height: 1.35 !important; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin: 0 0 6px !important; }
+  html.yolchi-phone[data-page="exam"] :is(.task-meta, .task-bottom) { font-size: 8.5px !important; }
+  html.yolchi-phone[data-page="exam"] .score-bar { top: var(--hud) !important; right: var(--sr) !important; left: auto !important; transform: none !important; translate: none !important; padding: 6px 10px !important; gap: 10px !important; zoom: .85; }
+  html.yolchi-phone[data-page="exam"] .map-card { top: calc(var(--hud) + 52px) !important; right: var(--sr) !important; width: 112px !important; padding: 5px !important; translate: none !important; }
+  html.yolchi-phone[data-page="exam"] .map-card > div, html.yolchi-phone[data-page="exam"] .map-card footer { font-size: 7.5px !important; }
+  html.yolchi-phone[data-page="exam"] #minimap { width: 102px !important; height: 82px !important; }
+  /* Kamera / Qaytarish / Pauza — tepa qatorda */
+  html.yolchi-phone[data-page="exam"] .actions {
+    position: fixed !important; top: calc(var(--st) + (var(--bar) - 30px) / 2) !important; bottom: auto !important;
+    right: calc(var(--pr) + 36px) !important; height: 30px; gap: 5px !important; z-index: 31; translate: none !important;
+  }
+  html.yolchi-phone[data-page="exam"] .actions button { height: 30px; padding: 0 10px !important; border-radius: 999px !important; font-size: 10px !important; background: rgba(255, 255, 255, .82) !important; }
+  html.yolchi-phone[data-page="exam"] .actions kbd { display: none !important; }
+  html.yolchi-phone[data-page="exam"] .dashboard { zoom: .7; bottom: calc((var(--yb) + 10px) / .7) !important; translate: none !important; }
+  html.yolchi-phone[data-page="exam"] .keyboard-tip { display: none !important; }
+  html.yolchi-phone[data-page="exam"] .result-card { zoom: .8; }
+}
