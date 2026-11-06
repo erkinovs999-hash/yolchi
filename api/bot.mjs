@@ -33,6 +33,7 @@ async function tg(method, body) {
 }
 
 const playButton = (text = '🎮 O‘ynash', url = GAME) => ({ text, web_app: { url } });
+const MENU = { type: 'web_app', text: '🎮 O‘ynash', web_app: { url: GAME } };
 const esc = s => String(s || '').replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
 
 async function onMessage(m) {
@@ -47,6 +48,8 @@ async function onMessage(m) {
   });
 
   if (cmd === '/start') {
+    // Telegram menyu tugmasini keshlaydi — shu chat uchun alohida qayta o'rnatamiz.
+    await tg('setChatMenuButton', { chat_id: chat, menu_button: MENU });
     const room = /^room_([A-Za-z0-9]{8})$/.exec(args[0] || '');
     if (room) {
       const code = room[1].toUpperCase();
@@ -102,7 +105,7 @@ async function setup(host) {
   res.short = await tg('setMyShortDescription', { short_description: TEXT.short });
   res.description = await tg('setMyDescription', { description: TEXT.description });
   res.commands = await tg('setMyCommands', { commands: TEXT.commands });
-  res.menu = await tg('setChatMenuButton', { menu_button: { type: 'web_app', text: 'O‘ynash', web_app: { url: GAME } } });
+  res.menu = await tg('setChatMenuButton', { menu_button: MENU });
   return Object.fromEntries(Object.entries(res).map(([k, v]) => [k, v.ok ? 'ok' : (v.description || 'xato')]));
 }
 
