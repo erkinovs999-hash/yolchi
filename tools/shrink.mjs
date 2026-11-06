@@ -45,12 +45,14 @@ await doc.transform(
   // Materiallarni birlashtirmaymiz — nomlari kodda ishlatiladi.
   dedup({ propertyTypes: [PropertyType.ACCESSOR, PropertyType.MESH, PropertyType.TEXTURE] }),
   weld(),
-  simplify({ simplifier: MeshoptSimplifier, ratio, error, lockBorder }),
+  ...(process.env.NOSIMP ? [] : [simplify({ simplifier: MeshoptSimplifier, ratio, error, lockBorder })]),
   // Tekis (flat) normalli og'ir bo'laklar weld bo'lmaydi va soddalashmaydi:
   // normalni olib tashlab, birlashtirib, soddalashtirib, normalni qayta hisoblaymiz.
-  heavyFlat(20000),
+  ...(process.env.HEAVY ? [heavyFlat(20000)] : []),
+  // Soddalashtirishdan keyin normallarni qayta hisoblaymiz — aks holda kuzovda oq dog'lar chiqadi.
+  ...(process.env.RENORM ? [normals({ overwrite: true })] : []),
   // Pozitsiyani kvantlamaymiz: u tugun transformlarini (g'ildirak pivotlari) o'zgartiradi.
-  quantize({ pattern: /^(NORMAL|TANGENT|TEXCOORD_\d+)$/, quantizeNormal: 8, quantizeTexcoord: 14 }),
+  ...(process.env.NOQ ? [] : [quantize({ pattern: /^(NORMAL|TANGENT|TEXCOORD_\d+)$/, quantizeNormal: 8, quantizeTexcoord: 14 })]),
   textureCompress({ encoder: sharp, targetFormat: 'webp', resize: [texSize, texSize], quality: 80 }),
   // Bo'sh pivot tugunlarini (masalan TRAILER_kingpin_Y_rotation) saqlab qolamiz.
   prune({ propertyTypes: [PropertyType.ACCESSOR, PropertyType.TEXTURE, PropertyType.BUFFER], keepLeaves: true, keepAttributes: true, keepExtras: true })
