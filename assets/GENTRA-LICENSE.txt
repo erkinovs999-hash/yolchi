@@ -1,0 +1,12 @@
+Gentra
+Author: uzb_rx7 (https://sketchfab.com/uzbek_supra)
+Source: https://sketchfab.com/3d-models/gentra-99f158337e2741ac9af2848675f9128a
+License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+
+Supplied by the user for integration into Yo'lchi.
+Adaptation: scaled to 4.515 m length, ground alignment, front facing -Z;
+four independent wheel pivots; mesh simplification and normal recomputation;
+gzip compression. Runtime materials add selectable paint, lamp glazing,
+white headlamps and red brake lamps. No claim of author endorsement.
+Original file SHA-256: cc46ba03fbcc5b867998e361142f723bd51a2b4f9e1c5b5c1e4ddd034a05431b
