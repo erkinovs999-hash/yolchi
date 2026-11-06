@@ -1,0 +1,11 @@
+/* Yo'lchi — yuk mashinasi sahifasi: menyu qatlami ostidagi asl elementlar va HUD uchun uslub. */
+html.y-menu #menu, html.y-menu header{visibility:hidden!important}
+body{font-family:"Manrope",system-ui,sans-serif}
+.brand-mark{display:none!important}
+.brand b{font-family:"Unbounded",sans-serif;letter-spacing:.04em}
+.mission-panel h1,.finish-card h2,.dashboard .speed strong{font-family:"Unbounded",sans-serif}
+.finish-card .primary{background:#ff8a3d!important;color:#1b0d03!important;box-shadow:0 5px 0 #b8561b!important;border:0!important;font-family:"Unbounded",sans-serif;font-weight:800}
+.finish-icon{background:#ff8a3d!important;color:#1b0d03!important}
+.y-toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 50px);transform:translateX(-50%);z-index:999;max-width:80vw;padding:8px 16px;border-radius:999px;background:rgba(14,26,34,.92);border:1px solid rgba(255,255,255,.16);color:#fff;font:700 12px "Manrope",sans-serif;pointer-events:none;opacity:0;transition:opacity .2s}
+html.tg-fs .y-toast{top:calc(var(--tg-safe-area-inset-top,0px) + var(--tg-content-safe-area-inset-top,0px) + 8px)}
+.y-toast.show{opacity:1}

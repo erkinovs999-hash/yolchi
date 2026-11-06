@@ -1,13 +1,168 @@
-<!doctype html><html lang="uz"><head><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="/tg.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111d27"><meta name="description" content="MAN TGX va BTS tirkamasi bilan haydash va parkovka simulyatori."><title>BTS Truck Simulator</title><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23111d27'/%3E%3Cpath d='M5 9h15v13H5zM21 15h4l3 5v2h-7z' fill='%23f78435'/%3E%3Ccircle cx='10' cy='24' r='3' fill='white'/%3E%3Ccircle cx='24' cy='24' r='3' fill='white'/%3E%3C/svg%3E"><link rel="stylesheet" href="style.css"></head><body>
-<canvas id="scene" aria-label="BTS yuk mashinasi haydash maydonchasi"></canvas>
-<header><div class="brand"><span class="brand-mark">BTS<span class="brand-dot"></span></span><span class="divider"></span><div><b>TRUCK SIMULATOR</b><small>MAN TGX GX · 4 × 2</small></div></div><div class="header-actions"><span class="location"><span class="pin-icon"></span>OMBOR MAYDONCHASI</span><button class="icon-button" id="sound" aria-label="Dvigatel ovozini yoqish" title="Dvigatel ovozi"><svg viewBox="0 0 24 24"><path d="M11 4 5 9H2v6h3l6 5V4Zm5 5 5 6m0-6-5 6"/></svg></button><button class="icon-button" id="help" aria-label="Boshqaruv va pauza" title="Boshqaruv / Esc"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 8.7A2.7 2.7 0 0 1 15 9c0 2-3 2-3 4m0 3h.01"/></svg></button><button class="icon-button" id="fullscreen" aria-label="To‘liq ekran" title="To‘liq ekran"><svg viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></button></div></header>
-<section class="mission-panel glass" id="mission-panel"><div class="eyebrow">VAZIFA <span id="mission-bay">DOK 04</span></div><h1 id="mission-title">Birinchi parkovka</h1><p id="mission-instruction">04-dokka orqaga yurib joylashing.</p><div class="mission-metrics"><span><b id="target-distance">41</b> <span id="distance-caption">m qoldi</span></span><span id="alignment">Tirkamani tekislang</span></div><div class="progress-track"><div id="park-progress"></div></div></section>
-<div class="top-status" id="toast" role="status" aria-live="polite"></div>
-<aside class="map-panel glass"><div class="map-title"><span>MAYDONCHA</span><span>N</span></div><canvas id="map" width="220" height="220" aria-label="Yuk mashinasi va parkovka joyi xaritasi"></canvas><div class="map-legend"><i class="map-dot"></i>Siz <i class="map-dot target-dot"></i>Maqsad</div></aside>
-<div class="camera-panel glass"><button id="camera" title="Kamerani almashtirish (C)"><svg viewBox="0 0 24 24"><path d="M4 7h4l2-3h4l2 3h4v13H4V7Z"/><circle cx="12" cy="13" r="4"/></svg><span id="camera-label">Tashqi kamera</span><kbd>C</kbd></button><button id="doors" title="Yukxona eshiklari (E)"><svg viewBox="0 0 24 24"><path d="M3 3h18v18H3zm9 0v18m-3-9H7m10 0h-2"/></svg><span id="doors-label">Eshiklar yopiq</span><kbd>E</kbd></button></div>
-<div class="bottom-left"><div class="control-hint"><kbd>W</kbd><kbd>S</kbd> Gaz / orqa <span></span><kbd>A</kbd><kbd>D</kbd> Rul</div><div class="control-hint"><kbd>SPACE</kbd> Tormoz <span></span><kbd>R</kbd> Qaytadan</div></div>
-<section class="dashboard glass" aria-label="Tezlik paneli"><div class="gear" id="gear">N</div><div class="speed"><strong id="speed">0</strong><span>km/soat</span></div><div class="dash-divider"></div><div class="drive-data"><span>VAQT <b id="timer">00:00</b></span><span>TO‘QNASHUV <b id="collisions">0</b></span></div><div class="steering"><svg id="steering-icon" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16"/><circle cx="20" cy="20" r="4"/><path d="m16 20-12-3m20 3 12-3M20 24v12"/></svg><small id="articulation">0°</small></div><div class="rpm"><div id="rpm-fill"></div></div></section>
-<div class="touch-controls"><div class="touch-steer"><button data-key="left" aria-label="Chapga burish">A</button><button data-key="right" aria-label="O‘ngga burish">D</button></div><div class="touch-pedals"><button data-key="reverse">TORMOZ<br><small>ORQA</small></button><button data-key="forward" class="gas">GAZ</button></div></div>
-<div id="menu" class="menu-overlay"><section class="menu-card glass"><div class="eyebrow">HAYDOVCHI O‘RINDIG‘I SIZNIKI</div><h2 id="menu-title">Yo‘lga tayyormisiz?</h2><p id="menu-description">MAN TGX va BTS tirkamasi. Mashqni tanlang va rulga o‘tiring.</p><div class="mission-options" id="mission-options"><button data-mission="reverse" class="selected"><span>01</span><div><b>Birinchi parkovka</b><small>To‘g‘ri orqaga yurish</small></div><i></i></button><button data-mission="maneuver"><span>02</span><div><b>Aniq manevr</b><small>Burilish va dokka kirish</small></div><i></i></button><button data-mission="free"><span>03</span><div><b>Erkin haydash</b><small>Maydonchani o‘rganish</small></div><i></i></button></div><a class="race-entry" href="exam/"><span>YANGI · B TOIFA</span><b>Avtodrom imtihoni <i>↗</i></b><small>11 mashq · Cobalt va Malibu</small></a><a class="race-entry" href="race/"><span>YANGI · 2–4 O‘YINCHI</span><b>Gentra × Malibu × Cobalt <i>↗</i></b><small>Do‘stlar bilan trassada poyga</small></a><div class="menu-controls"><span><kbd>W A S D</kbd> Haydash</span><span><kbd>C</kbd> Kamera</span><span><kbd>SPACE</kbd> Tormoz</span></div><button id="play" class="primary" disabled>Model yuklanmoqda…</button><div class="load-track" id="load-track"><div id="load-progress"></div></div><small class="menu-foot" id="menu-foot">Yuk mashinasi tayyorlanmoqda</small></section></div>
-<div id="finish" class="finish-overlay" hidden><section class="finish-card glass"><div class="finish-icon">✓</div><div class="eyebrow">YUK YETKAZILDI</div><h2>Aniq parkovka!</h2><p>Tirkama belgilangan joyga joylashtirildi.</p><div class="finish-stats"><div><b id="finish-time">00:00</b><span>VAQT</span></div><div><b id="finish-hits">0</b><span>TO‘QNASHUV</span></div><div><b id="finish-score">100</b><span>BALL</span></div></div><button id="next" class="primary">Keyingi mashq</button><button id="retry" class="text-button">Qayta o‘ynash</button></section></div>
-<script type="module" src="game.js"></script></body></html>
+<!doctype html>
+<html lang="uz" data-yolchi>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a1218">
+<title>Yo‘lchi — 3D haydash o‘yini</title>
+<meta name="description" content="Do‘stlar bilan 3D poyga, yuk mashinasi simulyatori va avtodrom imtihoni — Telegram ichida.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Crect width='28' height='28' rx='8' fill='%23c6f24e'/%3E%3Cpath d='M8.5 6.5l5.5 8.5v7M19.5 6.5L14 15' fill='none' stroke='%230a1218' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="/tg.js"></script>
+<link rel="preload" href="/ui/fonts/unbounded-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/ui/yolchi.css">
+<style>
+  body{background:radial-gradient(70vw 70vh at 52% 66%,#1d3442 0%,#0f1d26 48%,#0a1218 100%)}
+  .glow{left:50%;top:248px;width:470px;height:70px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(198,242,78,.30),rgba(198,242,78,0))}
+  .ring{left:50%;top:268px;width:360px;height:36px;transform:translateX(-50%);border-radius:50%;border:1.5px solid rgba(198,242,78,.55)}
+  #hero{left:50%;top:84px;width:400px;height:225px;transform:translateX(-50%);object-fit:contain;opacity:0;transition:opacity .35s}
+  #hero.on{opacity:1}
+  .rail{left:var(--L);top:var(--T);display:flex;flex-direction:column;gap:8px}
+  .rail button{position:relative;width:64px;height:60px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:700}
+  .rail .dot{position:absolute;top:6px;right:8px;width:8px;height:8px;border-radius:9px;background:var(--red)}
+  .rail .sale{position:absolute;top:-5px;right:-5px;padding:2px 5px;border-radius:999px;background:var(--orange);color:#1b0d03;font-size:8px;font-weight:800}
+  .content{left:calc(var(--L) + 84px)}
+  .brandrow{top:var(--T);display:flex;align-items:center;gap:8px}
+  .carname{top:calc(var(--T) + 40px);display:flex;flex-direction:column;gap:2px}
+  .side{right:var(--R);top:var(--T);width:178px;display:flex;flex-direction:column;gap:8px}
+  .daily{padding:10px 12px;display:flex;flex-direction:column;gap:7px}
+  .daily .claim{height:26px;border-radius:9px;font-size:11px}
+  .invite{padding:9px 12px;display:flex;align-items:center;gap:10px;text-align:left}
+  .bottom{left:calc(var(--L) + 84px);right:var(--R);bottom:var(--B);display:flex;align-items:flex-end;gap:8px}
+  .modes{flex:1;display:flex;gap:8px;min-width:0}
+  .mode{flex:1;max-width:150px;min-width:0;height:76px;padding:10px 12px;border-radius:14px;display:flex;flex-direction:column;gap:3px;text-align:left;background:var(--panel);border:1px solid var(--line);transition:transform .12s}
+  .mode:active{transform:scale(.97)}
+  .mode .top{display:flex;justify-content:space-between;align-items:center}
+  .mode b{font-family:"Unbounded",sans-serif;font-size:13px;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mode small{font-size:10px;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mode[aria-pressed="true"]{border:1.5px solid var(--accent);background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 22%,transparent),color-mix(in srgb,var(--accent) 6%,transparent))}
+  .mode[aria-pressed="true"] small{color:#dfe8d0}
+  #play{width:178px;height:64px;font-size:17px;margin-bottom:6px;flex:none}
+  html.narrow .side{width:156px}
+  html.narrow #play{width:156px;font-size:15px}
+  html.narrow .mode{padding:8px 9px}
+  html.narrow .mode b{font-size:11.5px}
+  html.narrow #hero{width:340px}
+</style>
+</head>
+<body>
+<div id="ui">
+  <div class="abs glow"></div>
+  <div class="abs ring"></div>
+  <img id="hero" class="abs" alt="" decoding="async">
+
+  <div class="topbar">
+    <div class="pill" id="profile" style="padding:0 10px 0 3px;gap:8px">
+      <span class="avatar" id="avatar" style="width:24px;height:24px;font-size:10px">H</span>
+      <span id="pname">Haydovchi</span>
+      <span style="display:inline-flex;align-items:center;gap:5px"><span id="plevel" style="font-size:10px;color:var(--lime);font-weight:800">1-dar.</span><span class="bar" style="width:46px"><i id="pxp" style="width:0%"></i></span></span>
+    </div>
+    <span class="grow"></span>
+    <button class="pill" data-soon="Do‘kon"><span data-ic="coin" data-s="16"></span><span id="coins">0</span><span class="plus" data-ic="plus" data-c="#0a1218" data-s="11"></span></button>
+    <button class="pill" data-soon="Telegram Stars"><span data-ic="stars" data-s="16"></span><span id="stars">0</span><span class="plus" data-ic="plus" data-c="#0a1218" data-s="11"></span></button>
+    <button class="iconbtn" id="sound" aria-pressed="false" aria-label="Ovoz"><span data-ic="sound" data-c="#fff" data-s="15"></span></button>
+  </div>
+
+  <nav class="abs rail">
+    <a class="glass" href="/race/" style="position:relative;width:64px;height:60px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:700"><span data-ic="garage" data-c="#fff" data-s="20"></span>Garaj</a>
+    <button class="glass" data-soon="Do‘kon"><span data-ic="bag" data-c="#fff" data-s="20"></span>Do‘kon<span class="sale">TEZ</span></button>
+    <button class="glass" id="tasksBtn"><span data-ic="target" data-c="#fff" data-s="20"></span>Vazifalar<span class="dot" id="taskDot" hidden></span></button>
+    <button class="glass" data-soon="Reyting"><span data-ic="trophy" data-c="#fff" data-s="20"></span>Reyting</button>
+  </nav>
+
+  <div class="abs content brandrow"><span data-ic="logo" data-s="26"></span><span class="disp" style="font-size:15px;letter-spacing:.04em">YO‘LCHI</span></div>
+  <div class="abs content carname">
+    <span class="lbl" style="color:var(--lime)">Sizning mashinangiz</span>
+    <span class="disp" id="carName" style="font-size:24px;line-height:1.1">Gentra</span>
+    <span class="muted" id="carSub" style="font-size:11px;font-weight:600">1.5 · mexanika</span>
+  </div>
+
+  <div class="abs side">
+    <div class="glass daily" id="daily">
+      <div style="display:flex;justify-content:space-between"><span class="lbl">Kunlik vazifa</span><span id="dailyLeft" style="font-size:10px;font-weight:700;color:var(--muted)"></span></div>
+      <span style="font-size:12px;font-weight:700;line-height:1.3">3 ta poygani oxirigacha haydang</span>
+      <div style="display:flex;align-items:center;gap:8px"><span class="bar" style="flex:1"><i id="dailyBar" style="width:0%"></i></span><span id="dailyCount" style="font-size:11px;font-weight:800">0/3</span></div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;color:var(--coin)"><span data-ic="coin" data-s="16"></span>+150</span>
+        <button class="btn primary claim" id="claim" hidden style="padding:0 10px;box-shadow:0 3px 0 var(--lime-d)">Olish</button>
+      </div>
+    </div>
+    <button class="glass invite" id="invite">
+      <span style="width:30px;height:30px;border-radius:10px;background:rgba(42,171,238,.18);display:flex;align-items:center;justify-content:center;flex:none" data-ic="users" data-c="#2aabee" data-s="17"></span>
+      <span style="display:flex;flex-direction:column;gap:1px"><b style="font-size:12px">Do‘stni taklif qiling</b><span class="muted" style="font-size:10px;font-weight:600">Birga poygaga chiqing</span></span>
+    </button>
+  </div>
+
+  <div class="abs bottom">
+    <div class="modes" role="group" aria-label="Rejim">
+      <button class="mode" data-mode="race" style="--accent:#c6f24e">
+        <span class="top"><span data-ic="flag" data-c="#c6f24e" data-s="18"></span><span class="badge" style="background:#c6f24e;color:#0a1218">ONLAYN</span></span>
+        <b>Poyga</b><small>Do‘stlar bilan · 2–4</small>
+      </button>
+      <button class="mode" data-mode="truck" style="--accent:#ff8a3d">
+        <span class="top"><span data-ic="truck" data-c="#ff8a3d" data-s="18"></span><span class="badge" style="background:rgba(255,138,61,.18);color:#ffb37f">3 MISSIYA</span></span>
+        <b>Yuk mashinasi</b><small>MAN TGX · parkovka</small>
+      </button>
+      <button class="mode" data-mode="exam" style="--accent:#4da3ff">
+        <span class="top"><span data-ic="wheel" data-c="#4da3ff" data-s="18"></span><span class="badge" style="background:rgba(77,163,255,.18);color:#8cc4ff">B TOIFA</span></span>
+        <b>Avtodrom</b><small>11 mashq · imtihon</small>
+      </button>
+    </div>
+    <a class="btn primary" id="play" href="/race/"><span data-ic="play" data-c="#0a1218" data-s="16"></span>O‘YNASH</a>
+  </div>
+</div>
+
+<script src="/ui/yolchi.js"></script>
+<script>
+(function () {
+  var Y = window.Yolchi, st = Y.state(), r = Y.racer();
+  Y.hydrate(); Y.layout();
+  var $ = function (id) { return document.getElementById(id); };
+  var URLS = { race: '/race/', truck: '/truck/', exam: '/exam/' };
+  var COLORS = { race: '#c6f24e', truck: '#ff8a3d', exam: '#4da3ff' };
+
+  // Profil
+  $('pname').textContent = r.name; $('avatar').textContent = (r.name[0] || 'H').toUpperCase();
+  var lv = Y.level(st.xp); $('plevel').textContent = lv.lv + '-dar.'; $('pxp').style.width = Math.round(lv.cur / lv.need * 100) + '%';
+  $('coins').textContent = st.coins.toLocaleString('ru-RU'); $('stars').textContent = st.stars;
+
+  // Mashina
+  var car = Y.cars[r.car] || Y.cars.gentra;
+  $('carName').textContent = car.name; $('carSub').textContent = car.sub;
+  var hero = $('hero'); hero.onload = function () { hero.classList.add('on'); };
+  hero.onerror = function () { hero.onerror = null; hero.src = Y.carImage(r.car, '#e5e7eb'); };
+  hero.src = Y.carImage(r.car, r.color);
+
+  // Kunlik vazifa
+  function daily() {
+    var n = Math.min(st.racesToday || 0, 3);
+    $('dailyBar').style.width = (n / 3 * 100) + '%'; $('dailyCount').textContent = n + '/3';
+    var done = n >= 3;
+    $('claim').hidden = !done || st.dailyClaimed;
+    $('taskDot').hidden = !(done && !st.dailyClaimed);
+    var now = new Date(), end = new Date(now); end.setHours(24, 0, 0, 0);
+    $('dailyLeft').textContent = st.dailyClaimed ? 'olindi ✓' : Math.ceil((end - now) / 3600000) + ' soat';
+  }
+  daily();
+  $('claim').onclick = function () { st.coins += 150; st.xp += 50; st.dailyClaimed = true; Y.save(st); $('coins').textContent = st.coins.toLocaleString('ru-RU'); daily(); Y.haptic('medium'); Y.toast('+150 tanga!'); };
+  $('tasksBtn').onclick = function () { var d = $('daily'); d.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.04)' }, { transform: 'scale(1)' }], { duration: 350 }); };
+
+  // Rejimlar
+  function pick(mode) {
+    st.mode = mode; Y.save(st);
+    document.querySelectorAll('.mode').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.mode === mode)); });
+    var p = $('play'); p.href = URLS[mode];
+    p.className = 'btn ' + (mode === 'truck' ? 'orange' : mode === 'exam' ? 'blue' : 'primary');
+    $('play').querySelector('svg path').setAttribute('fill', mode === 'truck' ? '#1b0d03' : '#0a1218');
+  }
+  document.querySelectorAll('.mode').forEach(function (b) { b.onclick = function () { pick(b.dataset.mode); Y.haptic(); }; });
+  pick(st.mode in URLS ? st.mode : 'race');
+
+  $('play').addEventListener('click', function () { if (st.mode === 'race') try { sessionStorage.setItem('yolchi-step', 'mode'); } catch (e) {} });
+  document.querySelectorAll('[data-soon]').forEach(function (b) { b.onclick = function () { Y.toast(b.dataset.soon + ' — tez kunda'); }; });
+  $('invite').onclick = function () { Y.share('Yo‘lchi’da men bilan poygaga chiq! 🏁', ''); };
+  $('sound').onclick = function () { Y.toast('Ovoz o‘yin ichida yoqiladi'); };
+})();
+</script>
+</body>
+</html>

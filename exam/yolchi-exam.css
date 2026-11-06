@@ -1,0 +1,57 @@
+/* Yo'lchi — avtodrom sahifasi: menyu qatlami ostidagi asl menyuni yashirish va HUD'ni qorong'i shisha uslubiga o'tkazish. */
+:root{--y-panel:rgba(14,26,34,.80);--y-line:rgba(255,255,255,.12);--y-muted:#8fa3b1;--y-blue:#4da3ff;--y-lime:#c6f24e}
+body{font-family:"Manrope",system-ui,sans-serif!important}
+html.y-menu #menu,html.y-menu .topbar,html.y-menu .scene-label{visibility:hidden!important}
+.topbar{background:rgba(10,18,24,.86)!important;color:#fff!important;border:0!important}
+.topbar .brand{color:#fff!important;font-family:"Unbounded",sans-serif}
+.topbar .brand span,.topbar .brand small{color:var(--y-muted)!important}
+.topbar a,.topbar .top-center{color:#c3cdd4!important}
+
+/* HUD kartalari */
+.task-card,.score-bar,.map-card{background:var(--y-panel)!important;border:1px solid var(--y-line)!important;color:#fff!important;box-shadow:none!important;border-radius:14px!important;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.task-card h2{font-family:"Unbounded",sans-serif;font-weight:800;color:#fff!important}
+.task-meta,.task-bottom,.score-bar span,.score-bar small,.map-card>div,.map-card footer{color:var(--y-muted)!important}
+.task-meta #mode-label{color:var(--y-blue)!important;font-weight:800}
+.task-card p{color:#c3cdd4!important}
+.progress{background:rgba(255,255,255,.10)!important}
+.progress i{background:var(--y-blue)!important}
+.score-bar strong{color:#fff!important;font-family:"Unbounded",sans-serif}
+.map-card footer i{background:var(--y-lime)!important}
+.map-card button{color:#fff!important}
+.actions button{background:var(--y-panel)!important;border:1px solid var(--y-line)!important;color:#fff!important;border-radius:999px!important;font-weight:700}
+.dashboard{background:rgba(10,18,24,.86)!important;border:1px solid var(--y-line)!important}
+.dial strong{font-family:"Unbounded",sans-serif}
+.gears [aria-pressed=true]{background:var(--y-blue)!important;border-color:var(--y-blue)!important;color:#06182b!important}
+.car-switches [aria-pressed=true],.indicators [aria-pressed=true]{color:var(--y-lime)!important}
+#toast{background:rgba(14,26,34,.92)!important;color:#fff!important;border:1px solid rgba(255,255,255,.16)!important;border-radius:999px!important;font-weight:700}
+
+/* Sensorli boshqaruv */
+.touch-controls button{background:rgba(14,26,34,.62)!important;border:1px solid rgba(255,255,255,.14)!important;color:#fff!important}
+.touch-controls .gas{background:var(--y-blue)!important;border:0!important;box-shadow:0 5px 0 #2a6fb8!important}
+.touch-controls .brake{background:rgba(255,77,94,.28)!important;border-color:rgba(255,120,130,.5)!important}
+.touch-controls button.active{filter:brightness(1.25)}
+.touch-controls .gas{--pedal-c:#06182b}.touch-controls .brake{--pedal-c:#fff}
+
+/* Natija / pauza */
+.overlay{background:rgba(5,10,14,.62)!important}
+.result-card{background:#0e1a22!important;color:#fff!important;border:1px solid var(--y-line);border-radius:16px!important}
+.result-card h2{font-family:"Unbounded",sans-serif;color:#fff!important}
+.result-card p,.result-stats span,.result-card .eyebrow{color:var(--y-muted)!important}
+.result-stats{border-color:var(--y-line)!important}
+.result-events li{border-color:var(--y-line)!important;color:#c3cdd4}
+.result-events strong{color:#ff8a7a!important}
+.result-card .primary{background:var(--y-blue)!important;color:#06182b!important;font-family:"Unbounded",sans-serif;font-weight:800;border-radius:12px!important;box-shadow:0 5px 0 #2a6fb8}
+.result-card .text-button{color:var(--y-muted)!important}
+dialog{background:#0e1a22!important;color:#fff!important;border:1px solid var(--y-line)!important}
+dialog h2{font-family:"Unbounded",sans-serif}
+dialog p,.help-grid kbd{color:#c3cdd4!important}
+dialog::backdrop{background:rgba(5,10,14,.6)!important}
+.y-toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 50px);transform:translateX(-50%);z-index:999;max-width:80vw;padding:8px 16px;border-radius:999px;background:rgba(14,26,34,.92);border:1px solid rgba(255,255,255,.16);color:#fff;font:700 12px "Manrope",sans-serif;pointer-events:none;opacity:0;transition:opacity .2s}
+html.tg-fs .y-toast{top:calc(var(--tg-safe-area-inset-top,0px) + var(--tg-content-safe-area-inset-top,0px) + 8px)}
+.y-toast.show{opacity:1}
+/* mobile.css (telefon) qoidalaridan ustun turishi uchun */
+html.yolchi-phone[data-page="exam"] .actions button{background:rgba(14,26,34,.80)!important;color:#fff!important;border:1px solid rgba(255,255,255,.12)!important}
+html.yolchi-phone[data-page="exam"] .topbar .icon{background:rgba(14,26,34,.80)!important;color:#fff!important;border-color:rgba(255,255,255,.12)!important}
+html.yolchi-phone[data-page="exam"] :is([data-drive="gas"]){--pedal-c:#06182b}
+html.yolchi-phone[data-page="exam"] :is([data-drive="brake"]){--pedal-c:#fff}
+html.yolchi-phone[data-page="exam"] #help{background:rgba(14,26,34,.80)!important;color:#fff!important;border:1px solid rgba(255,255,255,.12)!important}

@@ -21,19 +21,21 @@
     ].join('');
     (document.head || root).appendChild(css);
 
-    // Gorizontal "o'yin" ko'rinishi: mobile.css (sahifa turi bo'yicha)
-    var p = location.pathname.replace(/\/+$/, '') || '/';
-    root.setAttribute('data-page', p === '/race' ? 'race' : p === '/exam' ? 'exam' : 'truck');
-    var link = document.createElement('link');
-    link.rel = 'stylesheet'; link.href = '/mobile.css?v=4';
-    (document.head || root).appendChild(link);
+    // Eski sahifalar uchun mobile.css; Yo'lchi dizaynidagi sahifalar (data-yolchi) o'z uslubiga ega.
+    if (!root.hasAttribute('data-yolchi')) {
+      var p = location.pathname.replace(/\/+$/, '') || '/';
+      root.setAttribute('data-page', p === '/race' ? 'race' : p === '/exam' ? 'exam' : 'truck');
+      var link = document.createElement('link');
+      link.rel = 'stylesheet'; link.href = '/mobile.css?v=4';
+      (document.head || root).appendChild(link);
+    }
 
     var mount = function () {
       if (document.getElementById('yolchi-rotate')) return;
       var el = document.createElement('div');
       el.id = 'yolchi-rotate';
       el.setAttribute('role', 'alert');
-      el.innerHTML = '<svg viewBox="0 0 64 64" fill="none" stroke="#f78435" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="20" y="6" width="24" height="44" rx="5"/><path d="M29 43h6"/><path d="M50 52a22 22 0 0 1-30 6" stroke="#fff" stroke-opacity=".5"/><path d="M24 54l-4 4 5 3" stroke="#fff" stroke-opacity=".5"/></svg>' +
+      el.innerHTML = '<svg viewBox="0 0 64 64" fill="none" stroke="#c6f24e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="20" y="6" width="24" height="44" rx="5"/><path d="M29 43h6"/><path d="M50 52a22 22 0 0 1-30 6" stroke="#fff" stroke-opacity=".5"/><path d="M24 54l-4 4 5 3" stroke="#fff" stroke-opacity=".5"/></svg>' +
         '<div>Telefonni yon tomonga buring</div><small>Yo‘lchi gorizontal rejimda o‘ynaladi</small>';
       // Brauzerda: bosilganda to'liq ekran + gorizontal qulf (Android Chrome qo'llaydi)
       if (!inTg) el.addEventListener('click', function () {

@@ -1,30 +1,223 @@
 <!doctype html>
-<html lang="uz"><head><script src="https://telegram.org/js/telegram-web-app.js"></script><script src="/tg.js"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#142229"><meta name="description" content="Gentra, Malibu va Cobalt bilan 3D poyga. Xona oching va 2–4 do‘stingiz bilan bir trassada bellashing."><title>BTS Drive Club — Gentra · Malibu · Cobalt</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23142229'/%3E%3Cpath d='m8 7-3 18h11l3-5H11l1-3h9l3-10z' fill='%23d9ff75'/%3E%3C/svg%3E"><link rel="stylesheet" href="/race/style.css"></head>
-<body data-phase="menu">
-<canvas id="scene" tabindex="0" aria-label="Gentra, Malibu va Cobalt poyga maydoni"></canvas>
-<header class="topbar"><a class="brand" href="/" aria-label="BTS yuk mashinasi o‘yiniga qaytish"><b>BTS<i></i></b><span>DRIVE<br>CLUB</span></a><div class="top-meta"><i></i> TOSHKENT RING <span>01 / CIRCUIT</span></div><nav><a class="truck-link" href="/exam/">Avtodrom ↗</a><a class="truck-link" href="/">Yuk mashinasi ↗</a><button id="sound" class="icon-btn" aria-label="Dvigatel ovozi" aria-pressed="false" title="Dvigatel ovozi">♫</button><button id="camera" class="icon-btn race-only" aria-label="Kamerani almashtirish" title="Kamera · C">▣</button><button id="help" class="icon-btn" aria-label="Boshqaruvni ko‘rish">?</button></nav></header>
-<main id="garage" class="garage">
- <section class="menu-panel" id="menu-panel">
-  <div class="eyebrow"><span class="line"></span> DO‘STLAR. MASHINALAR. POYGA.</div>
-  <h1>O‘z mashinang.<br><em>O‘z davrang.</em></h1><p class="intro">Gentra, Malibu yoki Cobalt. Uch aylana.<br>Finishda kim birinchi bo‘ladi?</p>
-  <label class="field-label" for="nickname">HAYDOVCHI ISMI <span>01</span></label><input id="nickname" maxlength="18" autocomplete="nickname" placeholder="Ismingiz" value="Haydovchi">
-  <div class="field-label">MASHINANI TANLANG <span>02</span></div>
-  <div class="car-options" role="group" aria-label="Mashina tanlash"><button class="car-choice selected" data-car="gentra" aria-pressed="true"><span class="car-number">01</span><strong>Gentra</strong><small>1.5 · Klassika</small><i>↗</i></button><button class="car-choice" data-car="malibu" aria-pressed="false"><span class="car-number">02</span><strong>Malibu</strong><small>2019 · Premier</small><i>↗</i></button><button class="car-choice" data-car="cobalt" aria-pressed="false"><span class="car-number">03</span><strong>Cobalt</strong><small>2014 · LTZ</small><i>↗</i></button></div>
-  <div class="color-row"><span>KUZOV RANGI</span><div role="group" aria-label="Kuzov rangi"><button class="swatch selected" style="--swatch:#e5e7eb" data-color="#e5e7eb" aria-label="Oq" aria-pressed="true"></button><button class="swatch" style="--swatch:#28313e" data-color="#28313e" aria-label="Qora" aria-pressed="false"></button><button class="swatch" style="--swatch:#36799b" data-color="#36799b" aria-label="Ko‘k" aria-pressed="false"></button><button class="swatch" style="--swatch:#ac393f" data-color="#ac393f" aria-label="Qizil" aria-pressed="false"></button><button class="swatch" style="--swatch:#c5c0a5" data-color="#c5c0a5" aria-label="Bej" aria-pressed="false"></button></div></div>
-  <p id="model-status" class="small-note model-status" role="status" hidden><span id="model-status-text"></span> <button id="retry-model" class="text-btn" hidden>Qayta yuklash ↻</button></p>
-  <button class="primary" id="create">Do‘stlar uchun xona yaratish <span>↗</span></button>
-  <div class="join-row"><input id="room-input" maxlength="8" placeholder="Xona kodi" aria-label="Xona kodi" autocomplete="off" autocapitalize="characters" spellcheck="false"><button id="join" class="secondary">Qo‘shilish →</button></div>
-  <button class="solo-link" id="solo">Yakka mashq <span>↗</span></button>
-  <p class="small-note">Beta · 2–4 o‘yinchi · Telefon va kompyuter</p>
- </section>
- <section class="lobby-panel panel" id="lobby" hidden><div class="eyebrow"><i class="status-dot"></i> DO‘STLAR XONASI</div><h2>Davrangni yig‘.</h2><p class="muted">Havolani do‘stlaringizga yuboring. Hamma tayyor bo‘lsa, mezbon poygani boshlaydi.</p><div class="room-box"><div><small>XONA KODI</small><strong id="room-code"></strong></div><button id="copy" class="icon-btn" aria-label="Taklif havolasini nusxalash" title="Havolani nusxalash">↗</button></div><input id="invite-link" aria-label="Taklif havolasi" readonly hidden><div class="players-title"><span>HAYDOVCHILAR</span><span id="player-count">1 / 4</span></div><ol id="players" class="players"></ol><div class="lobby-track"><svg viewBox="-170 -125 345 260" aria-hidden="true"><path id="track-path"/></svg><div><b>Toshkent Ring</b><small>3 aylana · <span id="track-length"></span></small></div><span>01</span></div><button id="ready" class="secondary wide">Tayyor</button><button id="start" class="primary" disabled>Poygani boshlash <span>→</span></button><p id="lobby-hint" class="small-note">Do‘stingizni kutyapmiz…</p><button id="leave-lobby" class="text-btn">← Garajga qaytish</button></section>
- <div class="car-caption" id="car-caption"><span>01 — GARAGE COLLECTION</span><strong id="car-title">GENTRA<span>1.5</span></strong><div><span id="car-tag">Kundalik klassika.</span><span>4 G‘ILDIRAK / ALOHIDA</span></div></div>
- <footer class="garage-footer"><span><i></i> BTS MOTORSPORT</span><span>TRASSADA BIRGAMIZ.</span><span>VOL. 02 / 2026</span></footer>
-</main>
-<section id="connecting" class="modal-backdrop" hidden><div class="compact-panel panel"><span class="spinner"></span><h2>Xonaga ulanyapmiz…</h2><p class="muted">Internet orqali do‘stlar bilan bog‘lanish tayyorlanmoqda.</p><button id="cancel" class="secondary wide">Bekor qilish</button></div></section>
-<section id="hud" hidden aria-label="Poyga ko‘rsatkichlari"><div class="race-heading"><span class="eyebrow" id="race-mode">ONLAYN POYGA</span><strong><b id="lap">1</b><span>/ 3</span> <small>AYLANA</small></strong><div id="race-time">00:00.0</div></div><ol id="leaderboard" class="leaderboard"></ol><div class="mini-panel"><div><span>TOSHKENT RING</span><span id="ping">SOLO</span></div><canvas id="minimap" width="340" height="260" aria-label="Trassa xaritasi"></canvas></div><div class="race-actions"><button id="lights" class="chip" aria-pressed="true">Faralar <kbd>L</kbd></button><button id="reset" class="chip">Yo‘lga qaytish <kbd>R</kbd></button><button id="exit-race" class="chip">Chiqish</button></div><div class="speedometer"><div class="speed-top"><span id="gear">N</span><small id="current-car">GENTRA</small></div><div><strong id="speed">0</strong><span>KM/SOAT</span></div><div class="rev-track"><i id="revs"></i></div><small id="driving-status">STARTNI KUTING</small></div><div class="keyboard-hint"><kbd>W A S D</kbd> HAYDASH <span>·</span> <kbd>SPACE</kbd> TORMOZ <span>·</span> <kbd>C</kbd> KAMERA</div><div id="countdown" class="countdown" aria-live="polite"></div><div id="pause-notice" class="pause-notice" hidden>PAUZA <small>Mezbon o‘yin oynasiga qaytishi kutilmoqda.</small></div></section>
-<div class="touch-controls race-only"><div><button data-drive="left" aria-label="Chapga burish">←</button><button data-drive="right" aria-label="O‘ngga burish">→</button></div><div><button data-drive="brake" class="brake" aria-label="Tormoz">■</button><button data-drive="reverse" aria-label="Orqaga yurish">R</button><button data-drive="gas" class="gas" aria-label="Gaz">↑</button></div></div>
-<section id="results" class="modal-backdrop" hidden><div class="results-panel panel"><div class="eyebrow">KATAKLI BAYROQ</div><h2 id="result-title">Poyga yakunlandi.</h2><p class="muted" id="result-note">Toshkent Ring · 3 aylana</p><ol id="result-list" class="result-list"></ol><button id="rematch" class="primary">Yana poyga <span>↻</span></button><p id="rematch-wait" class="small-note" hidden>Keyingi poygani mezbon ochadi.</p><button id="leave-results" class="text-btn">Garajga qaytish</button></div></section>
-<dialog id="help-dialog" class="panel"><button id="close-help" class="dialog-close icon-btn" aria-label="Yopish">×</button><div class="eyebrow">RUL SIZNING QO‘LINGIZDA</div><h2>Trassaga tayyormisiz?</h2><div class="help-grid"><span>Gaz / orqaga</span><kbd>W / S yoki ↑ / ↓</kbd><span>Chap / o‘ng</span><kbd>A / D yoki ← / →</kbd><span>Tormoz</span><kbd>SPACE</kbd><span>Kamera</span><kbd>C</kbd><span>Faralar</span><kbd>L</kbd><span>Yo‘lga qaytish</span><kbd>R · +5 soniya</kbd></div><p class="muted">3 aylanani trassa bo‘ylab to‘liq tugating. Yashil chiziq keyingi nazorat nuqtasini ko‘rsatadi. Telefonda ekrandagi tugmalardan foydalaning.</p><p class="muted">Onlayn: xona yarating, havolani ulashing va hammangiz «Tayyor»ni bosing. Mezbon o‘yin oynasini ochiq tutishi kerak. U chiqsa, xona yopiladi.</p><p id="view-note" class="small-note">Malibu Premier 2019 va Cobalt LTZ 2014 — siz yuborgan haqiqiy 3D maketlar. Gentra — o‘yin uchun yaratilgan 3D talqin. Boshqaruv poyga o‘yiniga moslangan.</p><p class="small-note model-credit">Malibu 3D: <a href="https://sketchfab.com/3d-models/2019-chevrolet-malibu-premier-507a7761496748bb933cf7863f49a991" target="_blank" rel="noopener">Ddiaz Design</a> · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> · <a href="/assets/MALIBU-LICENSE.txt" target="_blank">Moslashtirish va litsenziya</a></p><p class="small-note model-credit">Cobalt 3D: <a href="https://sketchfab.com/3d-models/chevrolet-cobalt-ltz-2014-f91cbef731444f939e263041400216ca" target="_blank" rel="noopener">Q.SARDOR</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> · <a href="/assets/COBALT-LICENSE.txt" target="_blank">Moslashtirish va litsenziya</a></p></dialog>
-<div id="toast" role="status" aria-live="polite" hidden></div><div id="fatal" class="modal-backdrop" hidden><div class="panel compact-panel"><h2>O‘yin yuklanmadi.</h2><p>Brauzerda sahifani yangilab, qayta urinib ko‘ring.</p><a href="./" class="primary">Qayta yuklash</a></div></div>
-<script type="module" src="/race/race.js"></script><noscript>O‘ynash uchun brauzerda JavaScript’ni yoqing.</noscript></body></html>
+<html lang="uz" data-yolchi>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a1218">
+<title>Yo‘lchi — Poyga</title>
+<meta name="description" content="Gentra, Malibu va Cobalt bilan 3D poyga. Xona oching va 2–4 do‘stingiz bilan bir trassada bellashing.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Crect width='28' height='28' rx='8' fill='%23c6f24e'/%3E%3Cpath d='M8.5 6.5l5.5 8.5v7M19.5 6.5L14 15' fill='none' stroke='%230a1218' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="/tg.js"></script>
+<link rel="stylesheet" href="/ui/yolchi.css">
+<link rel="stylesheet" href="/race/yolchi-race.css">
+</head>
+<body data-phase="menu" data-step="garage">
+<canvas id="scene" tabindex="0" aria-label="Poyga maydoni"></canvas>
+
+<div id="ui">
+  <!-- ======= TEPA QATOR (barcha bosqichlar) ======= -->
+  <div class="topbar">
+    <span class="title menu-only step-garage">GARAJ</span>
+    <span class="muted menu-only step-garage" style="font-size:11px;font-weight:700">3 mashina</span>
+    <button class="iconbtn menu-only step-mode" id="toGarage" aria-label="Garajga qaytish"><span data-ic="back" data-c="#fff" data-s="15"></span></button>
+    <span class="title menu-only step-mode lobby-only">POYGA</span>
+    <div class="seg menu-only step-mode" role="tablist">
+      <button class="on" data-tab="friends">Do‘stlar bilan</button>
+      <button data-tab="quick">Tezkor o‘yin</button>
+      <button data-tab="solo">Yakka mashq</button>
+    </div>
+    <div class="race-only rh" id="race-heading">
+      <span class="pill pos"><b class="disp" id="pos">1</b><small id="posOf">/1</small></span>
+      <span class="pill"><span class="lbl" style="font-size:8px">Aylana</span><b id="lap">1</b><small>/3</small></span>
+      <span class="pill"><b id="race-time" style="font-variant-numeric:tabular-nums">00:00.0</b></span>
+      <span class="pill mode-pill" id="race-mode">YAKKA MASHQ</span>
+    </div>
+    <span class="grow"></span>
+    <span class="pill menu-only lobby-only"><span data-ic="coin" data-s="16"></span><span class="coins">0</span></span>
+    <button id="lights" class="iconbtn race-only" aria-pressed="true" aria-label="Faralar (L)"><span data-ic="light" data-c="#fff" data-s="15"></span></button>
+    <button id="reset" class="iconbtn race-only" aria-label="Yo‘lga qaytish (R)"><span data-ic="refresh" data-c="#fff" data-s="15"></span></button>
+    <button id="camera" class="iconbtn race-only" aria-label="Kamera (C)"><span data-ic="camera" data-c="#fff" data-s="15"></span></button>
+    <button id="sound" class="iconbtn" aria-label="Dvigatel ovozi" aria-pressed="false"><span data-ic="sound" data-c="#fff" data-s="15"></span></button>
+    <button id="help" class="iconbtn" aria-label="Yordam"><span data-ic="help" data-c="#fff" data-s="15"></span></button>
+    <button id="exit-race" class="iconbtn race-only exit" aria-label="Chiqish"><span data-ic="exit" data-c="#fff" data-s="15"></span></button>
+  </div>
+
+  <!-- ======= GARAJ + REJIM (menu) + LOBBI ======= -->
+  <main id="garage" class="garage">
+    <section id="menu-panel">
+      <!-- 02 · Garaj -->
+      <div class="abs carinfo step-garage">
+        <span class="lbl" style="color:var(--lime)" id="carClass">Sedan · 1-sinf</span>
+        <span class="disp" id="carName" style="font-size:26px;line-height:1.05">Gentra</span>
+        <span class="muted" id="carSub" style="font-size:11px;font-weight:600">1.5 · mexanika</span>
+        <div class="glass stats">
+          <div><p><span class="muted">Maks. tezlik</span><b id="stSpeed">187 km/s</b></p><span class="bar"><i id="brSpeed"></i></span></div>
+          <div><p><span class="muted">Tezlanish</span><b id="stAcc">5.1</b></p><span class="bar"><i id="brAcc"></i></span></div>
+          <div><p><span class="muted">Tormoz</span><b id="stBrake">12.5</b></p><span class="bar"><i id="brBrake"></i></span></div>
+          <div><p><span class="muted">Boshqaruv</span><b id="stSteer">0.53</b></p><span class="bar"><i id="brSteer"></i></span></div>
+        </div>
+        <p id="model-status" class="model-status" role="status" hidden><span id="model-status-text"></span> <button id="retry-model" class="linkbtn" hidden>Qayta yuklash ↻</button></p>
+      </div>
+
+      <div class="abs glass paint step-garage">
+        <label class="lbl" for="nickname">Haydovchi ismi</label>
+        <input id="nickname" maxlength="18" autocomplete="nickname" placeholder="Ismingiz" value="Haydovchi">
+        <div class="tabs3"><span class="on">Rang</span><span data-soon>Disk</span><span data-soon>Stiker</span></div>
+        <div class="swatches" role="group" aria-label="Kuzov rangi">
+          <button class="swatch" style="--sw:#e5e7eb" data-color="#e5e7eb" aria-label="Oq"></button>
+          <button class="swatch" style="--sw:#28313e" data-color="#28313e" aria-label="Qora"></button>
+          <button class="swatch" style="--sw:#36799b" data-color="#36799b" aria-label="Ko‘k"></button>
+          <button class="swatch" style="--sw:#ac393f" data-color="#ac393f" aria-label="Qizil"></button>
+          <button class="swatch" style="--sw:#c5c0a5" data-color="#c5c0a5" aria-label="Bej"></button>
+          <button class="swatch locked" style="--sw:linear-gradient(135deg,#ffb35c,#ff5f6d)" data-soon aria-label="Qulflangan"><span data-ic="lock" data-c="#fff" data-s="11"></span></button>
+          <button class="swatch locked" style="--sw:linear-gradient(135deg,#b8f0ff,#6c7cff)" data-soon aria-label="Qulflangan"><span data-ic="lock" data-c="#fff" data-s="11"></span></button>
+          <button class="swatch locked" style="--sw:linear-gradient(135deg,#2bd99f,#0f6e5d)" data-soon aria-label="Qulflangan"><span data-ic="lock" data-c="#fff" data-s="11"></span></button>
+        </div>
+        <div class="metal"><span>Metallik</span><span><span data-ic="coin" data-s="14"></span>300</span></div>
+      </div>
+
+      <div class="abs rotate-hint step-garage"><span data-ic="rotate" data-c="#8fa3b1" data-s="12"></span> 3D garaj</div>
+
+      <div class="abs carousel step-garage" role="group" aria-label="Mashina tanlash">
+        <button class="car-choice" data-car="gentra"><img alt="" data-thumb="gentra"><span>Gentra</span></button>
+        <button class="car-choice" data-car="cobalt"><img alt="" data-thumb="cobalt"><span>Cobalt</span></button>
+        <button class="car-choice" data-car="malibu"><img alt="" data-thumb="malibu"><span>Malibu</span></button>
+        <button class="car-lock" data-soon><img alt="" src="/ui/cars/cobalt-28313e.webp"><span class="lockic" data-ic="lock" data-c="#8fa3b1" data-s="12"></span><span class="price"><span data-ic="coin" data-s="14"></span>2 500</span></button>
+      </div>
+      <button class="abs btn primary choose step-garage" id="choose">TANLASH</button>
+
+      <div class="abs glass modepanel step-mode tab-friends">
+        <div class="mysel"><img alt="" id="mySelImg"><div><span class="lbl">Sizning mashinangiz</span><b id="mySelName">Gentra</b><span class="muted" id="mySelSub"></span></div>
+          <button class="btn ghost" id="changeCar"><span data-ic="garage" data-c="#fff" data-s="15"></span>Almashtirish</button></div>
+        <button class="btn primary big" id="create"><span data-ic="users" data-c="#0a1218" data-s="18"></span>Do‘stlar uchun xona ochish</button>
+        <div class="or"><span>yoki kod bilan qo‘shiling</span></div>
+        <div class="join-row">
+          <input id="room-input" maxlength="8" placeholder="XONA KODI" aria-label="Xona kodi" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <button id="join" class="btn ghost">Qo‘shilish <span data-ic="fwd" data-c="#fff" data-s="14"></span></button>
+        </div>
+      </div>
+      <div class="abs glass modepanel step-mode tab-solo">
+        <div class="mysel"><img alt="" id="mySelImg2"><div><span class="lbl">Sizning mashinangiz</span><b id="mySelName2">Gentra</b><span class="muted" id="mySelSub2"></span></div></div>
+        <p class="muted" style="font-size:12px;font-weight:600;line-height:1.5;margin:0">Toshkent Ring’da 3 aylana. Rekordingizni yangilang va har bir yakunlangan poyga uchun tanga oling.</p>
+        <button class="btn primary big" id="solo"><span data-ic="play" data-c="#0a1218" data-s="16"></span>Yakka mashqni boshlash</button>
+      </div>
+    </section>
+
+    <!-- 03 · Rejim (xona ochish / qo'shilish / yakka) -->
+      <div class="abs glass track step-mode lobby-show">
+        <div class="row"><span class="lbl">Trassa</span><span class="lbl" style="color:var(--lime)">01</span></div>
+        <div class="trackbox"><svg viewBox="-170 -125 345 260" aria-hidden="true"><path class="shadow" id="track-shadow"/><path id="track-path"/></svg></div>
+        <b class="disp" style="font-size:16px">Toshkent Ring</b>
+        <span class="muted" style="font-size:11px;font-weight:600">Shahar halqasi · 11 burilish</span>
+        <div class="tstats">
+          <div><span class="lbl">Aylana</span><b>3</b></div>
+          <div><span class="lbl">Masofa</span><b id="track-length">—</b></div>
+          <div><span class="lbl">Rekord</span><b id="best">—</b></div>
+        </div>
+      </div>
+
+    <!-- 03 · Lobbi -->
+    <section id="lobby" class="abs glass lobby" hidden>
+      <div class="row">
+        <div class="row" style="gap:10px"><span class="lbl">Xona kodi</span><strong id="room-code" class="disp"></strong></div>
+        <button id="copy" class="btn tgblue invitebtn"><span data-ic="send" data-c="#fff" data-s="14"></span>Taklif qilish</button>
+      </div>
+      <input id="invite-link" aria-label="Taklif havolasi" readonly hidden>
+      <div class="slots">
+        <div class="empty"><span data-ic="plus" data-c="#2aabee" data-s="18"></span><small>Do‘stni taklif qiling</small></div>
+        <div class="empty"><span data-ic="plus" data-c="#2aabee" data-s="18"></span><small>Do‘stni taklif qiling</small></div>
+        <div class="empty"><span data-ic="plus" data-c="#2aabee" data-s="18"></span><small>Do‘stni taklif qiling</small></div>
+        <div class="empty"><span data-ic="plus" data-c="#2aabee" data-s="18"></span><small>Do‘stni taklif qiling</small></div>
+        <ol id="players" class="players"></ol>
+      </div>
+      <div class="row foot"><span class="muted" id="lobby-hint" style="font-size:11px;font-weight:600">Do‘stingizni kutyapmiz…</span><span class="lbl"><span id="player-count">1 / 4</span> o‘yinchi</span></div>
+    </section>
+    <div class="abs lobbyactions lobby-show">
+      <button id="leave-lobby" class="btn ghost">Chiqish</button>
+      <button id="ready" class="btn ghost">Tayyor</button>
+    </div>
+    <button id="start" class="abs btn primary startbtn lobby-show" disabled>BOSHLASH</button>
+
+    <div class="car-caption" id="car-caption" hidden><strong id="car-title"></strong><span id="car-tag"></span></div>
+  </main>
+
+  <!-- ======= ULANISH ======= -->
+  <section id="connecting" class="modal" hidden>
+    <div class="glass dialogbox"><span class="spinner"></span><b class="disp" style="font-size:16px">Xonaga ulanyapmiz…</b><p class="muted">Do‘stlar bilan bog‘lanish tayyorlanmoqda.</p><button id="cancel" class="btn ghost">Bekor qilish</button></div>
+  </section>
+
+  <!-- ======= 05 · HUD ======= -->
+  <section id="hud" hidden aria-label="Poyga ko‘rsatkichlari">
+    <ol id="leaderboard" class="abs glass leaderboard"></ol>
+    <div class="abs glass mini"><span class="minihead"><span>TOSHKENT RING</span><span id="ping">SOLO</span></span><canvas id="minimap" width="340" height="260" aria-label="Trassa xaritasi"></canvas></div>
+    <div class="abs speedo">
+      <div class="sp"><strong id="speed" class="disp">0</strong><span class="sc"><b id="gear">N</b><small>km/soat</small></span></div>
+      <div class="bar rev"><i id="revs"></i></div>
+      <small id="driving-status">STARTNI KUTING</small>
+      <small id="current-car" hidden>GENTRA</small>
+    </div>
+    <div class="abs keys"><kbd>W A S D</kbd> haydash · <kbd>SPACE</kbd> tormoz · <kbd>C</kbd> kamera · <kbd>L</kbd> faralar</div>
+    <div id="countdown" class="abs countdown disp" aria-live="polite"></div>
+    <div id="pause-notice" class="abs glass pausebox" hidden><b class="disp">PAUZA</b><small class="muted">Mezbon o‘yin oynasiga qaytishi kutilmoqda.</small></div>
+  </section>
+
+  <div class="touch-controls race-only">
+    <div class="steer">
+      <button data-drive="left" aria-label="Chapga"><span data-ic="left" data-c="#fff" data-s="28"></span></button>
+      <button data-drive="right" aria-label="O‘ngga"><span data-ic="right" data-c="#fff" data-s="28"></span></button>
+    </div>
+    <div class="pedals">
+      <button data-drive="reverse" class="rev" aria-label="Orqaga"><b class="disp">R</b></button>
+      <button data-drive="brake" class="brake" aria-label="Tormoz"><span data-ic="brake" data-c="#fff" data-s="30"></span></button>
+      <button data-drive="gas" class="gas" aria-label="Gaz"><span data-ic="gas" data-c="#0a1218" data-s="32"></span></button>
+    </div>
+  </div>
+
+  <!-- ======= 06 · Natija ======= -->
+  <section id="results" class="modal results" hidden>
+    <div class="abs reshead"><span class="lbl" style="color:var(--lime)" id="result-note">Toshkent Ring · 3 aylana</span><h2 id="result-title" class="disp">Poyga yakunlandi.</h2><span class="muted" id="placeLine"></span></div>
+    <ol id="result-list" class="abs glass result-list"></ol>
+    <div class="abs glass reward" id="reward">
+      <span class="lbl" style="color:var(--coin)">Mukofot</span>
+      <div class="row" style="justify-content:flex-start;gap:8px"><span data-ic="coin" data-s="26"></span><b class="disp" id="rwCoins" style="font-size:22px">+0</b></div>
+      <span id="rwXp" style="font-size:11px;font-weight:800;color:var(--lime);display:inline-flex;gap:6px;align-items:center"><span data-ic="bolt" data-c="#c6f24e" data-s="13"></span>+0 tajriba</span>
+      <div><div class="row" style="font-size:10px;font-weight:700"><span class="muted" id="rwLv">1-daraja</span><span id="rwLvNum">0 / 200</span></div><span class="bar"><i id="rwLvBar"></i></span></div>
+    </div>
+    <div class="abs resactions">
+      <button id="leave-results" class="btn ghost"><span data-ic="back" data-c="#fff" data-s="14"></span>Garaj</button>
+      <button id="shareRes" class="btn tgblue" aria-label="Natijani ulashish"><span data-ic="send" data-c="#fff" data-s="20"></span></button>
+      <button id="rematch" class="btn primary"><span data-ic="refresh" data-c="#0a1218" data-s="15"></span>QAYTA</button>
+      <p id="rematch-wait" class="muted" hidden>Keyingi poygani mezbon ochadi.</p>
+    </div>
+  </section>
+
+  <div id="toast" class="abs racetoast" role="status" aria-live="polite" hidden></div>
+</div>
+
+<dialog id="help-dialog" class="helpdlg">
+  <button id="close-help" class="iconbtn dclose" aria-label="Yopish"><span data-ic="x" data-c="#fff" data-s="14"></span></button>
+  <span class="lbl" style="color:var(--lime)">Rul sizning qo‘lingizda</span>
+  <h2 class="disp">Trassaga tayyormisiz?</h2>
+  <div class="help-grid">
+    <span>Gaz / orqaga</span><kbd>W / S · ↑ / ↓</kbd>
+    <span>Chap / o‘ng</span><kbd>A / D · ← / →</kbd>
+    <span>Tormoz</span><kbd>SPACE</kbd>
+    <span>Kamera</span><kbd>C</kbd>
+    <span>Faralar</span><kbd>L</kbd>
+    <span>Yo‘lga qaytish</span><kbd>R · +5 soniya</kbd>
+  </div>
+  <p class="muted">3 aylanani to‘liq tugating. Yashil chiziq keyingi nazorat nuqtasini ko‘rsatadi. Telefonda ekrandagi tugmalardan foydalaning.</p>
+  <p class="muted">Onlayn: xona oching, taklifni do‘stlarga yuboring va hammangiz «Tayyor»ni bosing. Mezbon o‘yin oynasini ochiq tutishi kerak.</p>
+  <p id="view-note" class="muted small"></p>
+  <p class="muted small">3D modellar: Gentra — <a href="https://sketchfab.com/uzbek_supra" target="_blank" rel="noopener">uzb_rx7</a> (CC BY 4.0) · Cobalt — <a href="https://sketchfab.com/3d-models/chevrolet-cobalt-ltz-2014-f91cbef731444f939e263041400216ca" target="_blank" rel="noopener">Q.SARDOR</a> (CC BY 4.0) · Malibu — <a href="https://sketchfab.com/3d-models/2019-chevrolet-malibu-premier-507a7761496748bb933cf7863f49a991" target="_blank" rel="noopener">Ddiaz Design</a> (CC BY-NC-SA 4.0) · <a href="/assets/GENTRA-LICENSE.txt" target="_blank">litsenziyalar</a></p>
+</dialog>
+
+<div id="fatal" class="fatal" hidden><div><b>O‘yin yuklanmadi.</b><p>Sahifani yangilab, qayta urinib ko‘ring.</p><a href="./" class="btn primary" style="height:44px;padding:0 18px">Qayta yuklash</a></div></div>
+
+<script src="/ui/yolchi.js"></script>
+<script src="/race/yolchi-race.js"></script>
+<script type="module" src="/race/race.js"></script>
+<noscript>O‘ynash uchun brauzerda JavaScript’ni yoqing.</noscript>
+</body>
+</html>
