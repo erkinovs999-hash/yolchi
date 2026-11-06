@@ -59,7 +59,8 @@
   tg.ready();
   tg.expand();
   try { tg.disableVerticalSwipes(); } catch (e) {}   // rul burganda ilova yopilmasin
-  try { tg.enableClosingConfirmation(); } catch (e) {}
+  // Yopishni tasdiqlash faqat o'yin sahifalarida; bosh sahifadan bemalol chiqiladi.
+  try { path === '/' ? tg.disableClosingConfirmation() : tg.enableClosingConfirmation(); } catch (e) {}
   try { tg.setHeaderColor(color); tg.setBackgroundColor(color); } catch (e) {}
 
   // Do'st taklifi: t.me/yolchigame_bot?startapp=room_ABCD1234 → poyga xonasi
@@ -87,9 +88,12 @@
   }
 
   // Ichki sahifalarda Telegramning "Orqaga" tugmasi bosh sahifaga qaytaradi.
+  // Bosh sahifada "Orqaga" yashiriladi — aks holda u oldingi sahifadan qolib, Telegramning "Yopish" tugmasini to'sadi.
   if (path !== '/') {
     tg.BackButton.show();
-    tg.BackButton.onClick(function () { location.href = '/'; });
+    tg.BackButton.onClick(function () { location.replace('/'); });
+  } else {
+    try { tg.BackButton.hide(); } catch (e) {}
   }
 
   document.addEventListener('click', function (ev) {
