@@ -213,11 +213,11 @@ html.yolchi-phone.tg-fs {
 }
 
 /* ---------- Gaz / tormoz: yozuv o'rniga pedal ikonkasi ---------- */
-html.yolchi-phone :is([data-key="forward"], [data-key="reverse"], [data-drive="gas"], [data-drive="brake"]) {
+html.yolchi-phone :is([data-key="forward"], [data-key="reverse"], [data-drive="gas"], [data-drive="brake"], [data-drive="clutch"]) {
   font-size: 0 !important; color: transparent !important; position: relative;
 }
-html.yolchi-phone :is([data-key="forward"], [data-key="reverse"], [data-drive="gas"], [data-drive="brake"]) > * { display: none !important; }
-html.yolchi-phone :is([data-key="forward"], [data-key="reverse"], [data-drive="gas"], [data-drive="brake"])::before {
+html.yolchi-phone :is([data-key="forward"], [data-key="reverse"], [data-drive="gas"], [data-drive="brake"], [data-drive="clutch"]) > * { display: none !important; }
+html.yolchi-phone :is([data-key="forward"], [data-key="reverse"], [data-drive="gas"], [data-drive="brake"], [data-drive="clutch"])::before {
   content: ""; position: absolute; inset: 0; margin: auto; width: 30px; height: 30px;
   -webkit-mask: var(--pedal) center / contain no-repeat; mask: var(--pedal) center / contain no-repeat;
   background: var(--pedal-c, #fff);
@@ -229,6 +229,10 @@ html.yolchi-phone :is([data-key="reverse"], [data-drive="brake"]) {
   --pedal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Crect x='3' y='6' width='18' height='12' rx='3'/%3E%3Cpath d='M7 10h10M7 14h10'/%3E%3C/svg%3E");
 }
 html.yolchi-phone[data-page="exam"] :is([data-drive="gas"], [data-drive="brake"]) { --pedal-c: #344b32; }
+
+html.yolchi-phone [data-drive="clutch"] {
+  --pedal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Crect x='5' y='5' width='14' height='14' rx='7'/%3E%3Cpath d='M9 12h6'/%3E%3C/svg%3E");
+}
 
 /* ---------- Yuk mashinasi: rul tugmalarida A / D o'rniga strelka ---------- */
 html.yolchi-phone[data-page="truck"] :is([data-key="left"], [data-key="right"]) { font-size: 0 !important; }

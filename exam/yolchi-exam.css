@@ -55,3 +55,9 @@ html.yolchi-phone[data-page="exam"] .topbar .icon{background:rgba(14,26,34,.80)!
 html.yolchi-phone[data-page="exam"] :is([data-drive="gas"]){--pedal-c:#06182b}
 html.yolchi-phone[data-page="exam"] :is([data-drive="brake"]){--pedal-c:#fff}
 html.yolchi-phone[data-page="exam"] #help{background:rgba(14,26,34,.80)!important;color:#fff!important;border:1px solid rgba(255,255,255,.12)!important}
+/* Mexanik uzatma: ilashish pedali va 5 ta uzatma tugmasi */
+.touch-controls .clutch{background:rgba(255,200,61,.22)!important;border-color:rgba(255,200,61,.55)!important;--pedal-c:#ffc83d}
+html.yolchi-phone[data-page="exam"] [data-drive="clutch"]{--pedal-c:#ffc83d}
+.touch-controls .clutch.active{background:rgba(255,200,61,.5)!important}
+.gears{gap:2px!important}.gears button{width:24px!important;padding:0!important}
+.dial strong{min-width:60px!important}
