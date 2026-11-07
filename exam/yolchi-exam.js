@@ -36,7 +36,7 @@
   var st = Y.state();
   o.ui.innerHTML =
     '<div class="bg"></div><div class="abs glow"></div><div class="abs ring"></div><img class="abs hero" id="hero" alt="">' +
-    '<div class="topbar"><span class="title">AVTODROM</span><span class="muted" style="font-size:11px;font-weight:700">B toifa · 11 mashq</span><span class="grow"></span>' +
+    '<div class="topbar"><span class="title">AVTODROM</span><span class="muted" style="font-size:11px;font-weight:700">B toifa · 12 mashq</span><span class="grow"></span>' +
     '<span class="pill"><span data-ic="coin" data-s="16"></span><b id="coins">0</b></span>' +
     '<button class="iconbtn" id="hlp" aria-label="Qoidalar"><span data-ic="help" data-c="#fff" data-s="15"></span></button></div>' +
     '<div class="abs info"><span class="lbl" style="color:var(--blue)">Imtihon simulyatori</span><span class="disp" id="carName" style="font-size:24px;line-height:1.1"></span><span class="muted" id="carSub" style="font-size:11px;font-weight:600"></span></div>' +
@@ -44,9 +44,9 @@
     '<div class="abs glass panel"><span class="lbl">Rejim</span>' +
     '<div class="seg"><button data-m="exam">Imtihon<small>Barcha mashqlar</small></button><button data-m="practice">Mashq<small>Bittasini tanlang</small></button></div>' +
     '<select id="lesson" hidden aria-label="Mashqni tanlash"></select>' +
-    '<div class="chips"><div><span class="lbl" style="font-size:8px">Mashq</span><b>11</b></div><div><span class="lbl" style="font-size:8px">Toifa</span><b>B</b></div><div><span class="lbl" style="font-size:8px">Tezlik</span><b>20</b></div></div>' +
+    '<div class="chips"><div><span class="lbl" style="font-size:8px">Mashq</span><b>12</b></div><div><span class="lbl" style="font-size:8px">Toifa</span><b>B</b></div><div><span class="lbl" style="font-size:8px">Tezlik</span><b>20</b></div></div>' +
     '<div class="status" id="status"></div>' +
-    '<p class="note">Mashq uchun moslashtirilgan avtodrom. Rasmiy imtihonning aynan nusxasi emas.</p></div>' +
+    '<p class="note">Real avtodrom sxemasi asosida: 10-dan 21-mashqqacha. Rasmiy imtihonning aynan nusxasi emas.</p></div>' +
     '<button class="abs btn blue go" id="go" disabled><span id="goTxt">YUKLANMOQDA…</span></button>';
   o.icons();
   var q = function (id) { return o.root.getElementById(id); };

@@ -72,7 +72,7 @@
   o.ui.innerHTML =
     '<div class="top"><div class="l"><button class="iconbtn" id="pause" aria-label="Pauza">' + SVG(IC.menu, '#fff', 15) + '</button>' +
     '<button class="pillb" id="reset"><span data-ic="refresh" data-c="#fff" data-s="13"></span>Qaytarish</button></div>' +
-    '<div class="stats"><div><b id="pts">0<small>/100</small></b><span>JARIMA</span></div><div><b id="tm">0:00</b><span>VAQT</span></div><div><b id="stg">01<small>/11</small></b><span>MASHQ</span></div><div class="lim" id="lim">20</div></div>' +
+    '<div class="stats"><div><b id="pts">0<small>/100</small></b><span>JARIMA</span></div><div><b id="tm">0:00</b><span>VAQT</span></div><div><b id="stg">01<small>/12</small></b><span>MASHQ</span></div><div class="lim" id="lim">20</div></div>' +
     '<div class="r"><button class="iconbtn" id="cam" aria-label="Kamera"><span data-ic="camera" data-c="#fff" data-s="15"></span></button>' +
     '<button class="iconbtn" id="hlp" aria-label="Qoidalar"><span data-ic="help" data-c="#fff" data-s="15"></span></button></div></div>' +
     '<div class="task pe" id="task"><b id="tt"></b><i id="tc"></i></div><div class="toast" id="toast"></div>' +
