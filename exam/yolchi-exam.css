@@ -63,3 +63,6 @@ html.yolchi-phone[data-page="exam"] [data-drive="clutch"]{--pedal-c:#ffc83d}
 .dial strong{min-width:60px!important}
 /* Yangi HUD (yolchi-exam-hud.js): asl haydash paneli yashiriladi */
 html.y-hud body:not([data-phase="menu"]) :is(.touch-controls,.dashboard,.task-card,.score-bar,.actions,.keyboard-tip,.map-card,.topbar,#toast){display:none!important}
+
+/* ko'p barmoqli boshqaruvda brauzer masshtablash/aylantirish qilmasin */
+html.y-hud body:not([data-phase="menu"]),html.y-hud #scene{touch-action:none!important}

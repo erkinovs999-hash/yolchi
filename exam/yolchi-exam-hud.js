@@ -58,6 +58,7 @@
     '.sig{position:absolute;right:calc(var(--R) + 33px);bottom:calc(var(--B) + 178px);display:flex;gap:16px}',
     '.sig button{width:44px;height:44px;border-radius:50%;background:rgba(14,26,34,.78);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center}',
     '.sig button.on{background:rgba(198,242,78,.22);border-color:var(--lime)}',
+    '#ui,#ui *{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}',
     ':host-context(.narrow) .task{max-width:300px}'
   ].join('');
 
@@ -93,9 +94,15 @@
 
   // Tugmalar → asl o'yin tugmalari
   var map = { pause: 'pause', reset: 'reset', cam: 'camera', hlp: 'help', belt: 'belt', eng: 'engine', hb: 'handbrake', sl: 'left-signal', sr: 'right-signal' };
-  Object.keys(map).forEach(function (k) { q(k).onclick = function () { Y.press($d(map[k])); Y.haptic(); }; });
+  // Ko'p barmoqli bosishda brauzer "click" bermaydi (masalan, ilashishni ushlab turib uzatma bosilganda),
+  // shuning uchun tugmalar barmoq tekkan zahoti (pointerdown) ishlaydi.
+  var tapNow = function (el, fn) {
+    el.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); fn(); });
+    el.addEventListener('click', function (e) { if (e.detail === 0) fn(); });   // klaviatura (Enter/Space)
+  };
+  Object.keys(map).forEach(function (k) { tapNow(q(k), function () { Y.press($d(map[k])); Y.haptic(); }); });
   q('gears').querySelectorAll('[data-g]').forEach(function (b) {
-    b.onclick = function () { Y.press(document.querySelector('[data-gear="' + b.dataset.g + '"]')); Y.haptic('medium'); };
+    tapNow(b, function () { Y.press(document.querySelector('[data-gear="' + b.dataset.g + '"]')); Y.haptic('medium'); });
   });
 
   // Pedallar

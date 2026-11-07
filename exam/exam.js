@@ -4649,7 +4649,7 @@ function ycResult(ok) {
   if (stats) { le("result-stats").replaceChildren(); for (let [v, k] of stats) { let n = document.createElement("div"), b = document.createElement("b"), s = document.createElement("span"); b.textContent = v, s.textContent = k, n.append(b, s), le("result-stats").append(n) } }
 }
 window.__ycEnv = w => { ycWx = w; try { localStorage.setItem("yolchi-wx", w) } catch {} ycEnv() };
-window.__yc = { tr: ycTr, tick: ycTick, pe: () => Pe };
+window.__yc = { tr: ycTr, tick: ycTick, pe: () => Pe, eu: () => eu };
 window.__ycBest = () => { try { return +localStorage.getItem("yolchi-exam-best") || 0 } catch { return 0 } };
 setTimeout(ycEnv, 0);
 
