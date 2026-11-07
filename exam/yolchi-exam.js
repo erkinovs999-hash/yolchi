@@ -2,6 +2,9 @@
 (function () {
   var Y = window.Yolchi;
   var $d = function (id) { return document.getElementById(id); };
+  var MODES = [['exam', 'Imtihon', '12 mashq'], ['practice', 'Mashq', 'Bittasini'], ['time', 'Vaqt', 'Rekord'], ['free', 'Erkin', 'Jarimasiz'], ['city', 'Shahar', 'Trafik bilan']];
+  var NOTES = { exam: 'Real avtodrom sxemasi: 10-dan 21-mashqqacha, 100 jarima balli \u2014 yiqilish.', practice: 'Bitta mashqni tanlab, qayta-qayta bajaring.', time: 'Barcha mashqlar vaqtga. Har bir jarima balli +1 soniya.', free: 'Mashqsiz va jarimasiz, yo\u2018llarda boshqa mashinalar bor.', city: '6 ta manzil, svetoforlar va trafik. Tezlik 40 km/soatgacha.' };
+  var WX = [['day', '\u2600 Kun'], ['night', '\u263E Tun'], ['rain', '\u2602 Yomg\u2018ir']];
   var CARS = [['gentra', 'Gentra', '1.5 · mexanika'], ['cobalt', 'Cobalt', '2014 · LTZ'], ['malibu', 'Malibu', '2019 · Premier']];
 
   var CSS = [
@@ -16,15 +19,19 @@
     '.car span{position:relative;width:100%;height:22px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;background:#0e1a22;font-size:10px;font-weight:800}',
     '.car.on{border:2px solid var(--blue)}.car.on span{background:var(--blue);color:#06182b}',
     '.panel{right:var(--R);top:var(--T);bottom:calc(var(--B) + 74px);width:250px;padding:12px;display:flex;flex-direction:column;gap:9px;overflow:hidden}',
+    '.modes{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}',
+    '.modes button{grid-column:span 2;padding:6px 3px;border-radius:10px;background:rgba(255,255,255,.06);display:flex;flex-direction:column;align-items:center;gap:1px;font-size:11px;font-weight:800;color:#fff;border:1px solid transparent}',
+    '.modes button:nth-child(n+4){grid-column:span 3}',
+    '.modes small{font-size:8.5px;font-weight:700;color:var(--muted)}',
+    '.modes button.on{background:rgba(77,163,255,.18);border-color:var(--blue)}.modes button.on small{color:#bcdcff}',
     '.seg{display:flex;gap:4px;padding:3px;border-radius:11px;background:rgba(255,255,255,.06)}',
-    '.seg button{flex:1;padding:7px 4px;border-radius:9px;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:12px;font-weight:800;color:var(--muted)}',
-    '.seg small{font-size:9px;font-weight:700;opacity:.8}',
+    '.seg button{flex:1;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:800;color:var(--muted)}',
     '.seg button.on{background:var(--blue);color:#06182b}',
     'select{appearance:none;-webkit-appearance:none;width:100%;height:34px;padding:0 30px 0 10px;border-radius:10px;background:#13222c url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 24 24%27%3E%3Cpath d=%27M6 9l6 6 6-6%27 fill=%27none%27 stroke=%27%238fa3b1%27 stroke-width=%272.5%27/%3E%3C/svg%3E") no-repeat right 10px center;border:1px solid rgba(255,255,255,.14);color:#fff;font:700 12px Manrope,sans-serif;pointer-events:auto}',
     '.chips{display:flex;gap:6px}',
     '.chips div{flex:1;padding:6px 8px;border-radius:10px;background:rgba(255,255,255,.05);display:flex;flex-direction:column;gap:1px}',
     '.chips b{font-size:13px;font-weight:800}',
-    '.note{margin-top:auto;font-size:10px;font-weight:600;line-height:1.4;color:var(--muted)}',
+    '.note{margin:auto 0 0;font-size:9.5px;font-weight:600;line-height:1.4;color:var(--muted)}',
     '.status{font-size:10px;font-weight:700;color:var(--muted);display:flex;gap:6px;align-items:center}',
     '.status button{color:var(--blue);font-weight:800;font-size:10px}',
     '.go{right:var(--R);bottom:calc(var(--B) + 6px);width:250px;height:56px;font-size:14px}',
@@ -42,11 +49,10 @@
     '<div class="abs info"><span class="lbl" style="color:var(--blue)">Imtihon simulyatori</span><span class="disp" id="carName" style="font-size:24px;line-height:1.1"></span><span class="muted" id="carSub" style="font-size:11px;font-weight:600"></span></div>' +
     '<div class="abs cars" id="cars"></div>' +
     '<div class="abs glass panel"><span class="lbl">Rejim</span>' +
-    '<div class="seg"><button data-m="exam">Imtihon<small>Barcha mashqlar</small></button><button data-m="practice">Mashq<small>Bittasini tanlang</small></button></div>' +
+    '<div class="modes" id="modes">' + MODES.map(function (m) { return '<button data-m="' + m[0] + '">' + m[1] + '<small>' + m[2] + '</small></button>'; }).join('') + '</div>' +
     '<select id="lesson" hidden aria-label="Mashqni tanlash"></select>' +
-    '<div class="chips"><div><span class="lbl" style="font-size:8px">Mashq</span><b>12</b></div><div><span class="lbl" style="font-size:8px">Toifa</span><b>B</b></div><div><span class="lbl" style="font-size:8px">Tezlik</span><b>20</b></div></div>' +
-    '<div class="status" id="status"></div>' +
-    '<p class="note">Real avtodrom sxemasi asosida: 10-dan 21-mashqqacha. Rasmiy imtihonning aynan nusxasi emas.</p></div>' +
+    '<span class="lbl">Ob-havo</span><div class="seg" id="wx">' + WX.map(function (w) { return '<button data-w="' + w[0] + '">' + w[1] + '</button>'; }).join('') + '</div>' +
+    '<div class="status" id="status"></div><p class="note" id="mnote"></p></div>' +
     '<button class="abs btn blue go" id="go" disabled><span id="goTxt">YUKLANMOQDA…</span></button>';
   o.icons();
   var q = function (id) { return o.root.getElementById(id); };
@@ -68,13 +74,19 @@
   function syncMode() {
     var m = (document.querySelector('[data-mode][aria-pressed="true"]') || {}).dataset;
     m = m ? m.mode : 'exam';
-    o.root.querySelectorAll('.seg [data-m]').forEach(function (b) { b.classList.toggle('on', b.dataset.m === m); });
+    o.root.querySelectorAll('#modes [data-m]').forEach(function (b) { b.classList.toggle('on', b.dataset.m === m); });
+    q('mnote').textContent = NOTES[m] || '';
+    var best = window.__ycBest && window.__ycBest();
+    if (m === 'time' && best) q('mnote').textContent += ' Eng yaxshi natija: ' + Math.floor(best / 60) + ':' + String(best % 60).padStart(2, '0') + '.';
     var src = $d('lesson'), dst = q('lesson');
     dst.hidden = m !== 'practice';
     if (dst.options.length !== src.options.length) dst.innerHTML = src.innerHTML;
     dst.value = src.value;
   }
-  o.root.querySelectorAll('.seg [data-m]').forEach(function (b) {
+  function syncWx() { var w = 'day'; try { w = localStorage.getItem('yolchi-wx') || 'day'; } catch (e) {} o.root.querySelectorAll('#wx [data-w]').forEach(function (b) { b.classList.toggle('on', b.dataset.w === w); }); }
+  o.root.querySelectorAll('#wx [data-w]').forEach(function (b) { b.onclick = function () { window.__ycEnv && window.__ycEnv(b.dataset.w); Y.haptic(); syncWx(); }; });
+  syncWx();
+  o.root.querySelectorAll('#modes [data-m]').forEach(function (b) {
     b.onclick = function () { Y.press(document.querySelector('[data-mode="' + b.dataset.m + '"]')); Y.haptic(); setTimeout(function () { syncMode(); syncStart(); }, 0); };
   });
   q('lesson').onchange = function () { var src = $d('lesson'); src.value = q('lesson').value; src.dispatchEvent(new Event('change', { bubbles: true })); };
