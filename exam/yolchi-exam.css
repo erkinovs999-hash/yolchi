@@ -61,3 +61,5 @@ html.yolchi-phone[data-page="exam"] [data-drive="clutch"]{--pedal-c:#ffc83d}
 .touch-controls .clutch.active{background:rgba(255,200,61,.5)!important}
 .gears{gap:2px!important}.gears button{width:24px!important;padding:0!important}
 .dial strong{min-width:60px!important}
+/* Yangi HUD (yolchi-exam-hud.js): asl haydash paneli yashiriladi */
+html.y-hud body:not([data-phase="menu"]) :is(.touch-controls,.dashboard,.task-card,.score-bar,.actions,.keyboard-tip,.map-card,.topbar,#toast){display:none!important}
