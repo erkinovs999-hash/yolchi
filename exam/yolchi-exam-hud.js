@@ -58,6 +58,15 @@
     '.sig{position:absolute;right:calc(var(--R) + 33px);bottom:calc(var(--B) + 178px);display:flex;gap:16px}',
     '.sig button{width:44px;height:44px;border-radius:50%;background:rgba(14,26,34,.78);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center}',
     '.sig button.on{background:rgba(198,242,78,.22);border-color:var(--lime)}',
+    '.stb{position:absolute;right:var(--R);bottom:var(--B);display:flex;gap:12px}',
+    '.st{width:86px;height:86px;border-radius:50%;background:rgba(14,26,34,.78);border:1px solid rgba(255,255,255,.16);align-items:center;justify-content:center;transition:transform .06s,background .06s}',
+    '.st.on{background:rgba(198,242,78,.3);border-color:var(--lime);transform:scale(.95)}',
+    '.tilt{position:absolute;right:var(--R);bottom:calc(var(--B) + 20px);width:184px;height:46px;border-radius:999px;background:rgba(14,26,34,.78);border:1px solid rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center}',
+    '.tilt span{font-size:9px;font-weight:800;letter-spacing:.14em;color:var(--muted)}',
+    '.tilt i{position:absolute;top:8px;left:calc(50% - 14px);width:28px;height:28px;border-radius:50%;background:var(--lime)}',
+    '.mode-buttons .wheel,.mode-buttons .tilt,.mode-wheel .stb,.mode-wheel .tilt,.mode-tilt .wheel,.mode-tilt .stb{display:none!important}',
+    '.mode-buttons .sig{bottom:calc(var(--B) + 100px);right:calc(var(--R) + 40px)}.mode-tilt .sig{bottom:calc(var(--B) + 80px);right:calc(var(--R) + 45px)}',
+    '.auto #pc{display:none}',
     '#ui,#ui *{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}',
     ':host-context(.narrow) .task{max-width:300px}'
   ].join('');
@@ -74,7 +83,7 @@
     '<div class="top"><div class="l"><button class="iconbtn" id="pause" aria-label="Pauza">' + SVG(IC.menu, '#fff', 15) + '</button>' +
     '<button class="pillb" id="reset"><span data-ic="refresh" data-c="#fff" data-s="13"></span>Qaytarish</button></div>' +
     '<div class="stats"><div><b id="pts">0<small>/100</small></b><span>JARIMA</span></div><div><b id="tm">0:00</b><span>VAQT</span></div><div><b id="stg">01<small>/12</small></b><span id="stgL">MASHQ</span></div><div class="lim" id="lim">20</div></div>' +
-    '<div class="r"><button class="iconbtn" id="snd" aria-label="Ovoz"><span data-ic="sound" data-c="#fff" data-s="15"></span></button><button class="iconbtn" id="cam" aria-label="Kamera"><span data-ic="camera" data-c="#fff" data-s="15"></span></button>' +
+    '<div class="r"><button class="iconbtn" id="set" aria-label="Sozlamalar"><span data-ic="sliders" data-c="#fff" data-s="15"></span></button><button class="iconbtn" id="snd" aria-label="Ovoz"><span data-ic="sound" data-c="#fff" data-s="15"></span></button><button class="iconbtn" id="cam" aria-label="Kamera"><span data-ic="camera" data-c="#fff" data-s="15"></span></button>' +
     '<button class="iconbtn" id="hlp" aria-label="Qoidalar"><span data-ic="help" data-c="#fff" data-s="15"></span></button></div></div>' +
     '<div class="task pe" id="task"><b id="tt"></b><i id="tc"></i></div><div class="toast" id="toast"></div>' +
     '<div class="gauge"><svg width="94" height="94" viewBox="0 0 94 94"><circle cx="47" cy="47" r="45" fill="rgba(14,26,34,.85)" stroke="rgba(255,255,255,.12)"/>' +
@@ -88,7 +97,9 @@
     '<div class="ped pe" id="pg" data-p="gas" aria-label="Gaz"><span class="stem"></span><span class="pad"></span></div></div>' +
     '<div class="map pe"><canvas id="map" width="208" height="192"></canvas></div>' +
     '<div class="sig"><button id="sl" aria-label="Chap ishora">' + SVG(IC.tri, '#fff', 20, 2) + '</button><button id="sr" aria-label="O‘ng ishora" style="transform:scaleX(-1)">' + SVG(IC.tri, '#fff', 20, 2) + '</button></div>' +
-    '<div class="wheel pe" id="wheel" aria-label="Rul">' + wheelSvg + '</div>';
+    '<div class="wheel pe" id="wheel" aria-label="Rul">' + wheelSvg + '</div>' +
+    '<div class="stb" id="stb"><div class="ped pe st" data-p="left" aria-label="Chapga">' + SVG('M15 5l-8 7 8 7', '#fff', 34, 3) + '</div><div class="ped pe st" data-p="right" aria-label="O‘ngga">' + SVG('M9 5l8 7-8 7', '#fff', 34, 3) + '</div></div>' +
+    '<div class="tilt" id="tilt"><span>EGISH</span><i id="tiltI"></i></div>';
   o.icons();
   var q = function (id) { return o.root.getElementById(id); };
 
@@ -105,8 +116,25 @@
   var sndSync = function () { var on = window.__ycSound ? window.__ycSound() : true; q('snd').setAttribute('aria-pressed', on ? 'true' : 'false'); q('snd').style.opacity = on ? '1' : '.45'; };
   tapNow(q('snd'), function () { window.__ycSound && window.__ycSound(!window.__ycSound()); Y.haptic(); sndSync(); });
   sndSync();
-  q('gears').querySelectorAll('[data-g]').forEach(function (b) {
-    tapNow(b, function () { Y.press(document.querySelector('[data-gear="' + b.dataset.g + '"]')); Y.haptic('medium'); });
+  tapNow(q('set'), function () { window.YS && window.YS.open(); Y.haptic(); });
+  var cfg = function () { return window.YS ? window.YS.get() : { steer: 'wheel', sens: 1, trans: 'manual' }; };
+  function applyCfg() {
+    var c = cfg();
+    q('gears').innerHTML = (c.trans === 'auto' ? ['R', 'N', 'D'] : ['R', 'N', '1', '2', '3']).map(function (g) { return '<button data-g="' + g + '">' + g + '</button>'; }).join('');
+    q('gears').querySelectorAll('[data-g]').forEach(function (b) {
+      tapNow(b, function () { Y.press(document.querySelector('[data-gear="' + b.dataset.g + '"]')); Y.haptic('medium'); });
+    });
+    o.ui.classList.toggle('auto', c.trans === 'auto');
+    ['wheel', 'buttons', 'tilt'].forEach(function (m) { o.ui.classList.toggle('mode-' + m, c.steer === m); });
+  }
+  applyCfg(); window.YS && window.YS.on(applyCfg);
+  // Telefonni egish (landshaft: beta burchagi rul kabi)
+  var tiltV = 0;
+  addEventListener('deviceorientation', function (e) {
+    if (cfg().steer !== 'tilt' || e.beta == null) return;
+    var ang = (screen.orientation && screen.orientation.angle) || window.orientation || 0;
+    var v = ang === 90 ? e.beta : ang === -90 || ang === 270 ? -e.beta : e.gamma;
+    tiltV = Math.max(-1, Math.min(1, -(v || 0) / 28));
   });
 
   // Pedallar
@@ -149,7 +177,9 @@
     if (!drag) rot *= Math.pow(0.78, dt * 60);
     if (Math.abs(rot) < 0.3 && !drag) rot = 0;
     W.style.transform = 'rotate(' + rot.toFixed(1) + 'deg)';
-    window.__yWheel = -rot / MAX;
+    var c = cfg(), sens = c.sens || 1;
+    window.__yWheel = c.steer === 'tilt' ? Math.max(-1, Math.min(1, tiltV * sens)) : c.steer === 'buttons' ? 0 : Math.max(-1, Math.min(1, -rot / MAX * sens));
+    if (c.steer === 'tilt') q('tiltI').style.transform = 'translateX(' + (-tiltV * 70).toFixed(1) + 'px)';
 
     var sp = parseInt(txt('speed'), 10) || 0;
     q('spd').textContent = sp;
@@ -174,7 +204,7 @@
     var g = document.querySelector('[data-gear][aria-pressed="true"]'); g = g ? g.dataset.gear : '';
     q('gears').querySelectorAll('[data-g]').forEach(function (b) { b.classList.toggle('on', b.dataset.g === g); });
     var s = drive();
-    ['pc', 'pb', 'pg'].forEach(function (id) { var el = q(id); el.classList.toggle('on', !!(s && s.has(el.dataset.p))); });
+    o.root.querySelectorAll('.ped').forEach(function (el) { el.classList.toggle('on', !!(s && s.has(el.dataset.p))); });
 
     if (mm && mm.width && !mm.hidden) { try { mctx.clearRect(0, 0, 208, 192); mctx.drawImage(mm, 0, 0, 208, 192); } catch (x) {} }
   }

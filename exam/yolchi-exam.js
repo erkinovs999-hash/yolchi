@@ -45,6 +45,7 @@
     '<div class="bg"></div><div class="abs glow"></div><div class="abs ring"></div><img class="abs hero" id="hero" alt="">' +
     '<div class="topbar"><span class="title">AVTODROM</span><span class="muted" style="font-size:11px;font-weight:700">B toifa · 12 mashq</span><span class="grow"></span>' +
     '<span class="pill"><span data-ic="coin" data-s="16"></span><b id="coins">0</b></span>' +
+    '<button class="iconbtn" id="cfg" aria-label="Sozlamalar"><span data-ic="sliders" data-c="#fff" data-s="15"></span></button>' +
     '<button class="iconbtn" id="hlp" aria-label="Qoidalar"><span data-ic="help" data-c="#fff" data-s="15"></span></button></div>' +
     '<div class="abs info"><span class="lbl" style="color:var(--blue)">Imtihon simulyatori</span><span class="disp" id="carName" style="font-size:24px;line-height:1.1"></span><span class="muted" id="carSub" style="font-size:11px;font-weight:600"></span></div>' +
     '<div class="abs cars" id="cars"></div>' +
@@ -102,6 +103,7 @@
   }
   q('go').onclick = function () { Y.haptic('medium'); Y.press($d('start')); };
   q('hlp').onclick = function () { Y.press($d('help')); };
+  q('cfg').onclick = function () { window.YS && window.YS.open(); Y.haptic(); };
 
   function syncPhase() {
     var on = document.body.dataset.phase === 'menu';
