@@ -4614,6 +4614,7 @@ function ycEnv() {
   ycRain.visible = ycWx === "rain"
 }
 function ycFx(R, e, dt) {
+  ycSnd(dt || .016);
   if (ycHead && ycHead.visible) {
     let a = Math.sin(e.yaw), o = Math.cos(e.yaw), y = zn(e.x, e.z);
     ycHead.position.set(e.x - a * 1.9, y + .85, e.z - o * 1.9), ycHead.target.position.set(e.x - a * 22, y - .4, e.z - o * 22), ycHead.target.updateMatrixWorld()
@@ -4649,9 +4650,93 @@ function ycResult(ok) {
   if (stats) { le("result-stats").replaceChildren(); for (let [v, k] of stats) { let n = document.createElement("div"), b = document.createElement("b"), s = document.createElement("span"); b.textContent = v, s.textContent = k, n.append(b, s), le("result-stats").append(n) } }
 }
 window.__ycEnv = w => { ycWx = w; try { localStorage.setItem("yolchi-wx", w) } catch {} ycEnv() };
-window.__yc = { tr: ycTr, tick: ycTick, pe: () => Pe, eu: () => eu };
+window.__yc = { tr: ycTr, tick: ycTick, pe: () => Pe, eu: () => eu, a: () => typeof ycA < 'u' ? ycA : null };
 window.__ycBest = () => { try { return +localStorage.getItem("yolchi-exam-best") || 0 } catch { return 0 } };
 setTimeout(ycEnv, 0);
+
+/* ===== Yo'lchi: avtodrom ovozlari (WebAudio sintezi, fayl yuklanmaydi) ===== */
+var ycA = { on: (() => { try { return localStorage.getItem("yolchi-sound") !== "0" } catch { return !0 } })(), ctx: null, rpm: 0, prev: null, blink: 0, tick: 0 };
+function ycAudio() {
+  if (ycA.ctx || !ycA.on) return ycA.ctx;
+  let C = window.AudioContext || window.webkitAudioContext; if (!C) return null;
+  let c = ycA.ctx = new C, m = ycA.master = c.createGain(); m.gain.value = .9, m.connect(c.destination);
+  // oq shovqin buferi
+  let nb = c.createBuffer(1, c.sampleRate * 2, c.sampleRate), d = nb.getChannelData(0); for (let k = 0; k < d.length; k++) d[k] = Math.random() * 2 - 1; ycA.noise = nb;
+  let loop = (f, type, g) => { let s = c.createBufferSource(); s.buffer = nb, s.loop = !0; let fl = c.createBiquadFilter(); fl.type = type, fl.frequency.value = f; let gn = c.createGain(); gn.gain.value = g; s.connect(fl).connect(gn).connect(m), s.start(); return { fl, gn } };
+  // dvigatel: arra + kvadrat (sub) + so'rish shovqini -> past o'tkazgich
+  let eg = ycA.eg = c.createGain(); eg.gain.value = 0;
+  let lp = ycA.elp = c.createBiquadFilter(); lp.type = "lowpass", lp.frequency.value = 400, lp.Q.value = 2.2;
+  let o1 = ycA.o1 = c.createOscillator(); o1.type = "sawtooth";
+  let o2 = ycA.o2 = c.createOscillator(); o2.type = "square";
+  let g2 = c.createGain(); g2.gain.value = .55;
+  o1.connect(lp), o2.connect(g2).connect(lp), lp.connect(eg).connect(m), o1.start(), o2.start();
+  let ns = c.createBufferSource(); ns.buffer = nb, ns.loop = !0; let bp = ycA.ebp = c.createBiquadFilter(); bp.type = "bandpass", bp.frequency.value = 600, bp.Q.value = .8; let ng = ycA.eng = c.createGain(); ng.gain.value = 0; ns.connect(bp).connect(ng).connect(m), ns.start();
+  ycA.rain = loop(1400, "lowpass", 0);
+  // trafik g'uvillashi
+  let to = c.createOscillator(); to.type = "sawtooth", to.frequency.value = 62; let tl = c.createBiquadFilter(); tl.type = "lowpass", tl.frequency.value = 260; let tg = ycA.tg = c.createGain(); tg.gain.value = 0; to.connect(tl).connect(tg).connect(m), to.start();
+  return c
+}
+function ycBeep(f, t = .12, type = "sine", v = .18, at = 0, f2) {
+  let c = ycA.ctx; if (!c) return;
+  let o = c.createOscillator(), g = c.createGain(), s = c.currentTime + at; o.type = type, o.frequency.setValueAtTime(f, s); f2 && o.frequency.exponentialRampToValueAtTime(f2, s + t);
+  g.gain.setValueAtTime(0, s), g.gain.linearRampToValueAtTime(v, s + .005), g.gain.exponentialRampToValueAtTime(.001, s + t); o.connect(g).connect(ycA.master), o.start(s), o.stop(s + t + .02)
+}
+function ycHiss(t = .05, f = 3e3, v = .2, type = "highpass", at = 0) {
+  let c = ycA.ctx; if (!c) return;
+  let s = c.createBufferSource(), fl = c.createBiquadFilter(), g = c.createGain(), w = c.currentTime + at; s.buffer = ycA.noise, fl.type = type, fl.frequency.value = f;
+  g.gain.setValueAtTime(v, w), g.gain.exponentialRampToValueAtTime(.001, w + t); s.connect(fl).connect(g).connect(ycA.master), s.start(w, Math.random()), s.stop(w + t + .02)
+}
+var ycSfx = {
+  click: () => ycHiss(.025, 3500, .25),
+  tick: h => ycBeep(h ? 1900 : 1400, .03, "square", .05),
+  gear: () => { ycHiss(.06, 900, .3, "bandpass"), ycBeep(120, .08, "triangle", .2) },
+  ratchet: () => { for (let k = 0; k < 5; k++) ycHiss(.018, 4200, .16, "highpass", k * .035) },
+  starter: () => { for (let k = 0; k < 7; k++) ycBeep(70 + k * 6, .09, "sawtooth", .07, k * .075) },
+  thump: v => { ycBeep(90, .25, "sine", Math.min(.5, .15 + v * .06), 0, 40), ycHiss(.18, 500, Math.min(.4, .1 + v * .05), "lowpass") },
+  buzz: () => { ycBeep(440, .16, "square", .07), ycBeep(330, .22, "square", .07, .17) },
+  chime: () => [660, 830, 990].forEach((f, k) => ycBeep(f, .25, "triangle", .12, k * .09)),
+  win: () => [523, 659, 784, 1046].forEach((f, k) => ycBeep(f, .35, "triangle", .14, k * .12)),
+  lose: () => [392, 330, 262].forEach((f, k) => ycBeep(f, .4, "sawtooth", .07, k * .18)),
+  stall: () => ycBeep(55, .5, "sawtooth", .12, 0, 25)
+};
+function ycSnd(dt) {
+  let c = ycA.ctx; if (!c) return;
+  let P = Pe, run = qt === "running" && P.phase === "running", T = c.currentTime, S = ycA.prev;
+  // dvigatel aylanishi (rpm) — uzatma, tezlik va ilashishga qarab
+  let g = mtZ[P.gear], tgt = 0, gas = run && eu.gas;
+  if (P.engine) g && !eu.clutch ? tgt = Math.max(780, 850 + Math.abs(P.speed) / g.v * 4300) + (gas ? 300 : 0) : tgt = 850 + (gas ? 2600 : 0);
+  ycA.rpm += (tgt - ycA.rpm) * Math.min(1, dt * (tgt > ycA.rpm ? 4 : P.engine ? 3 : 6));
+  let r = ycA.rpm, f = Math.max(8, r / 30), on = run && r > 60 && ycA.on;
+  ycA.o1.frequency.setTargetAtTime(f * (1 + (Math.random() - .5) * .02), T, .03), ycA.o2.frequency.setTargetAtTime(f / 2, T, .03);
+  ycA.elp.frequency.setTargetAtTime(240 + r * .22 + (gas ? 900 : 0), T, .05);
+  ycA.eg.gain.setTargetAtTime(on ? .05 + r / 7e3 * .07 + (gas ? .05 : 0) : 0, T, .06);
+  ycA.ebp.frequency.setTargetAtTime(400 + r * .35, T, .05), ycA.eng.gain.setTargetAtTime(on ? (gas ? .045 : .012) : 0, T, .06);
+  ycA.rain.gn.gain.setTargetAtTime(ycA.on && qt !== "menu" && ycWx === "rain" ? .06 : 0, T, .3);
+  let near = 99; for (let k of ycTr.cars) near = Math.min(near, Math.hypot(k.x - P.x, k.z - P.z));
+  ycA.tg.gain.setTargetAtTime(run && ycA.on && near < 28 ? .045 * (1 - near / 28) : 0, T, .2);
+  if (!ycA.on) return;
+  // burilish chirog'i
+  if (run && P.indicator) { ycA.blink += dt; if (ycA.blink > .38) ycA.blink = 0, ycSfx.tick(ycA.tick ^= 1) } else ycA.blink = .3;
+  // holat o'zgarishlari
+  if (S && S.ref === P) {
+    P.engine && !S.engine && ycSfx.starter();
+    !P.engine && S.engine && run && ycSfx.stall();
+    P.gear !== S.gear && ycSfx.gear();
+    P.handbrake !== S.handbrake && ycSfx.ratchet();
+    P.belt !== S.belt && ycSfx.click();
+    P.indicator !== S.indicator && ycSfx.click();
+    Math.abs(S.speed) > 1.2 && Math.abs(P.speed) < .05 && ycSfx.thump(Math.abs(S.speed));
+    if (P.events.length > S.ev) { let e = P.events[P.events.length - 1]; /collision|traffic/.test(e.code || "") || ycSfx.buzz() }
+    P.done.length > S.done && P.phase === "running" && ycSfx.chime();
+    P.cp > S.cp && ycSfx.chime();
+    P.phase !== S.phase && (P.phase === "passed" ? ycSfx.win() : P.phase === "failed" && ycSfx.lose())
+  }
+  ycA.prev = { ref: P, engine: P.engine, gear: P.gear, handbrake: P.handbrake, belt: P.belt, indicator: P.indicator, speed: P.speed, ev: P.events.length, done: P.done.length, cp: P.cp || 0, phase: P.phase }
+}
+var ycUnlock = () => { ycA.on && (ycAudio(), ycA.ctx && ycA.ctx.state !== "running" && ycA.ctx.resume()) };
+addEventListener("pointerdown", ycUnlock, !0), addEventListener("keydown", ycUnlock, !0);
+document.addEventListener("visibilitychange", () => { ycA.ctx && (document.hidden ? ycA.ctx.suspend() : ycA.on && ycA.ctx.resume()) });
+window.__ycSound = v => { if (v === void 0) return ycA.on; ycA.on = !!v; try { localStorage.setItem("yolchi-sound", v ? "1" : "0") } catch {} v ? ycUnlock() : ycA.ctx && ycA.master.gain.setTargetAtTime(0, ycA.ctx.currentTime, .05); v && ycA.ctx && ycA.master.gain.setTargetAtTime(.9, ycA.ctx.currentTime, .05); return ycA.on };
 
 requestAnimationFrame(Kf);
 /*! Bundled license information:

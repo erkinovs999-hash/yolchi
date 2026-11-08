@@ -74,7 +74,7 @@
     '<div class="top"><div class="l"><button class="iconbtn" id="pause" aria-label="Pauza">' + SVG(IC.menu, '#fff', 15) + '</button>' +
     '<button class="pillb" id="reset"><span data-ic="refresh" data-c="#fff" data-s="13"></span>Qaytarish</button></div>' +
     '<div class="stats"><div><b id="pts">0<small>/100</small></b><span>JARIMA</span></div><div><b id="tm">0:00</b><span>VAQT</span></div><div><b id="stg">01<small>/12</small></b><span id="stgL">MASHQ</span></div><div class="lim" id="lim">20</div></div>' +
-    '<div class="r"><button class="iconbtn" id="cam" aria-label="Kamera"><span data-ic="camera" data-c="#fff" data-s="15"></span></button>' +
+    '<div class="r"><button class="iconbtn" id="snd" aria-label="Ovoz"><span data-ic="sound" data-c="#fff" data-s="15"></span></button><button class="iconbtn" id="cam" aria-label="Kamera"><span data-ic="camera" data-c="#fff" data-s="15"></span></button>' +
     '<button class="iconbtn" id="hlp" aria-label="Qoidalar"><span data-ic="help" data-c="#fff" data-s="15"></span></button></div></div>' +
     '<div class="task pe" id="task"><b id="tt"></b><i id="tc"></i></div><div class="toast" id="toast"></div>' +
     '<div class="gauge"><svg width="94" height="94" viewBox="0 0 94 94"><circle cx="47" cy="47" r="45" fill="rgba(14,26,34,.85)" stroke="rgba(255,255,255,.12)"/>' +
@@ -101,6 +101,10 @@
     el.addEventListener('click', function (e) { if (e.detail === 0) fn(); });   // klaviatura (Enter/Space)
   };
   Object.keys(map).forEach(function (k) { tapNow(q(k), function () { Y.press($d(map[k])); Y.haptic(); }); });
+  // Ovoz: yoqish / o'chirish (holat saqlanadi)
+  var sndSync = function () { var on = window.__ycSound ? window.__ycSound() : true; q('snd').setAttribute('aria-pressed', on ? 'true' : 'false'); q('snd').style.opacity = on ? '1' : '.45'; };
+  tapNow(q('snd'), function () { window.__ycSound && window.__ycSound(!window.__ycSound()); Y.haptic(); sndSync(); });
+  sndSync();
   q('gears').querySelectorAll('[data-g]').forEach(function (b) {
     tapNow(b, function () { Y.press(document.querySelector('[data-gear="' + b.dataset.g + '"]')); Y.haptic('medium'); });
   });
@@ -176,7 +180,7 @@
   }
   function sync() {
     var run = document.body.dataset.phase === 'running';
-    o.show(run);
+    o.show(run); if (run) sndSync();
     if (run && !raf) raf = requestAnimationFrame(frame);
     if (!run && raf) { cancelAnimationFrame(raf); raf = 0; rot = 0; drag = null; window.__yWheel = 0; }
   }
