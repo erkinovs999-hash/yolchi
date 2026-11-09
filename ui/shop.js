@@ -12,7 +12,8 @@
   var PAINTS = [['sun', 'Quyosh', '#ff7a3c'], ['ice', 'Muz', '#7f9cff'], ['emerald', 'Zumrad', '#12a37f']];
   var PAINT_PRICE = 2500;
   var tg = window.Telegram && Telegram.WebApp, init = tg && tg.initData;
-  var star = function (s) { return Y.icon('stars', null, s || 14); };
+  // Yulduz belgisi: sariq tugma ustida ham ko'rinishi uchun to'q konturli (dark=true — VIP tugmasi uchun to'q yulduz)
+  var star = function (s, dark) { s = s || 14; return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" style="flex:none"><path d="M12 1.8l3 6.3 6.9.9-5 4.8 1.3 6.8L12 17.3l-6.2 3.3 1.3-6.8-5-4.8 6.9-.9z" fill="' + (dark ? '#2a1700' : '#ffc400') + '" stroke="' + (dark ? '#2a1700' : '#5a3b00') + '" stroke-width="1.4" stroke-linejoin="round"/></svg>'; };
 
   function owned(id) { var st = Y.state(); return !!st.vip || (st.paints || []).indexOf(id) >= 0; }
   function api(body) {
@@ -79,7 +80,7 @@
     '.pack{position:relative;padding:10px 8px 8px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);display:flex;flex-direction:column;align-items:center;gap:2px}',
     '.pack b{font-family:Unbounded,sans-serif;font-size:15px;font-weight:800}.pack small{font-size:9.5px;font-weight:700;color:var(--muted)}',
     '.pack .tag{position:absolute;top:-7px;right:6px;font-size:8.5px;font-weight:800;padding:2px 6px;border-radius:99px;background:var(--lime);color:#0a1218}',
-    '.buy{margin-top:6px;width:100%;height:30px;border-radius:10px;background:rgba(255,184,0,.14);border:1.5px solid #ffb800;color:#ffd35a;font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;gap:5px}',
+    '.buy{margin-top:6px;width:100%;height:30px;border-radius:10px;background:#1d2a33;border:1.5px solid #ffb800;color:#ffd35a;font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;gap:5px}',
     '.buy:active{transform:scale(.96)}',
     '.vip .buy{background:linear-gradient(90deg,#ffd76a,#ff9f43);border:0;color:#2a1700}',
     '.buy:disabled{opacity:.5}',
@@ -104,7 +105,7 @@
       '<button class="iconbtn" id="x" aria-label="Yopish"><span data-ic="x" data-c="#fff" data-s="14"></span></button></div>' +
       '<div class="cols"><div><div class="lbl2">Telegram Stars bilan</div><div class="packs">' +
       ['coins1', 'coins2', 'coins3'].map(function (k) { var it = ITEMS[k]; return '<div class="pack">' + (it.badge ? '<span class="tag">' + it.badge + '</span>' : '') + Y.icon('coin', null, 26) + '<b>' + it.title + '</b><small>' + it.sub + '</small><button class="buy" data-buy="' + k + '">' + star(14) + it.stars + '</button></div>'; }).join('') +
-      '</div><div class="vip"><div class="tx"><b>YO‘LCHI VIP</b><p>Barcha mukofotlar ×2 · 3 ta maxsus bo‘yoq · VIP belgisi. Bir marta to‘lanadi — umrbod.</p></div><button class="buy" data-buy="vip" id="vipBtn">' + star(16) + ITEMS.vip.stars + '</button></div></div>' +
+      '</div><div class="vip"><div class="tx"><b>YO‘LCHI VIP</b><p>Barcha mukofotlar ×2 · 3 ta maxsus bo‘yoq · VIP belgisi. Bir marta to‘lanadi — umrbod.</p></div><button class="buy" data-buy="vip" id="vipBtn">' + star(16, true) + ITEMS.vip.stars + '</button></div></div>' +
       '<div><div class="lbl2">Maxsus bo‘yoqlar</div><div class="paints" id="paints"></div></div></div>' +
       '<div class="ft"><span>To‘lov Telegram Stars orqali. Muammo bo‘lsa — botga /paysupport.</span><span class="grow"></span><button id="restore">Xaridlarni tiklash</button></div></div>';
     o.icons();
@@ -119,7 +120,7 @@
     try { cur = (JSON.parse(localStorage.getItem('bts-racer') || '{}').color || '').toLowerCase(); } catch (e) {}
     q('coins').textContent = (st.coins || 0).toLocaleString('ru-RU');
     q('vipb').hidden = !st.vip;
-    q('vipBtn').disabled = !!st.vip; q('vipBtn').innerHTML = st.vip ? 'Sizda bor ✓' : star(16) + ITEMS.vip.stars;
+    q('vipBtn').disabled = !!st.vip; q('vipBtn').innerHTML = st.vip ? 'Sizda bor ✓' : star(16, true) + ITEMS.vip.stars;
     q('paints').innerHTML = PAINTS.map(function (p) {
       var have = owned(p[0]), on = cur === p[2];
       return '<div class="paint"><i style="background:' + p[2] + '"></i><span>' + p[1] + '</span><button data-paint="' + p[0] + '" class="' + (on ? 'on' : '') + '">' +
