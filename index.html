@@ -58,14 +58,14 @@
       <span style="display:inline-flex;align-items:center;gap:5px"><span id="plevel" style="font-size:10px;color:var(--lime);font-weight:800">1-dar.</span><span class="bar" style="width:46px"><i id="pxp" style="width:0%"></i></span></span>
     </div>
     <span class="grow"></span>
-    <button class="pill" data-soon="Do‘kon"><span data-ic="coin" data-s="16"></span><span id="coins">0</span><span class="plus" data-ic="plus" data-c="#0a1218" data-s="11"></span></button>
-    <button class="pill" data-soon="Telegram Stars"><span data-ic="stars" data-s="16"></span><span id="stars">0</span><span class="plus" data-ic="plus" data-c="#0a1218" data-s="11"></span></button>
+    <button class="pill" data-shop><span data-ic="coin" data-s="16"></span><span id="coins">0</span><span class="plus" data-ic="plus" data-c="#0a1218" data-s="11"></span></button>
+    <button class="pill" data-shop><span data-ic="stars" data-s="16"></span><span id="stars">VIP</span><span class="plus" data-ic="plus" data-c="#0a1218" data-s="11"></span></button>
     <button class="iconbtn" id="sound" aria-pressed="false" aria-label="Ovoz"><span data-ic="sound" data-c="#fff" data-s="15"></span></button>
   </div>
 
   <nav class="abs rail">
     <a class="glass" href="/race/" style="position:relative;width:64px;height:60px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:700"><span data-ic="garage" data-c="#fff" data-s="20"></span>Garaj</a>
-    <button class="glass" data-soon="Do‘kon"><span data-ic="bag" data-c="#fff" data-s="20"></span>Do‘kon<span class="sale">TEZ</span></button>
+    <button class="glass" data-shop><span data-ic="bag" data-c="#fff" data-s="20"></span>Do‘kon<span class="sale">⭐</span></button>
     <button class="glass" id="tasksBtn"><span data-ic="target" data-c="#fff" data-s="20"></span>Vazifalar<span class="dot" id="taskDot" hidden></span></button>
     <button class="glass" data-soon="Reyting"><span data-ic="trophy" data-c="#fff" data-s="20"></span>Reyting</button>
   </nav>
@@ -113,6 +113,8 @@
 </div>
 
 <script src="/ui/yolchi.js"></script>
+<script src="/ui/overlay.js"></script>
+<script src="/ui/shop.js?v=1"></script>
 <script>
 (function () {
   var Y = window.Yolchi, st = Y.state(), r = Y.racer();
@@ -124,7 +126,7 @@
   // Profil
   $('pname').textContent = r.name; $('avatar').textContent = (r.name[0] || 'H').toUpperCase();
   var lv = Y.level(st.xp); $('plevel').textContent = lv.lv + '-dar.'; $('pxp').style.width = Math.round(lv.cur / lv.need * 100) + '%';
-  $('coins').textContent = st.coins.toLocaleString('ru-RU'); $('stars').textContent = st.stars;
+  $('coins').textContent = st.coins.toLocaleString('ru-RU'); $('stars').textContent = st.vip ? 'VIP ✓' : 'VIP';
 
   // Mashina
   var car = Y.cars[r.car] || Y.cars.gentra;
@@ -144,7 +146,7 @@
     $('dailyLeft').textContent = st.dailyClaimed ? 'olindi ✓' : Math.ceil((end - now) / 3600000) + ' soat';
   }
   daily();
-  $('claim').onclick = function () { st.coins += 150; st.xp += 50; st.dailyClaimed = true; Y.save(st); $('coins').textContent = st.coins.toLocaleString('ru-RU'); daily(); Y.haptic('medium'); Y.toast('+150 tanga!'); };
+  $('claim').onclick = function () { st.coins += st.vip ? 300 : 150; st.xp += 50; st.dailyClaimed = true; Y.save(st); $('coins').textContent = st.coins.toLocaleString('ru-RU'); daily(); Y.haptic('medium'); Y.toast(st.vip ? '+300 tanga! (VIP ×2)' : '+150 tanga!'); };
   $('tasksBtn').onclick = function () { var d = $('daily'); d.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.04)' }, { transform: 'scale(1)' }], { duration: 350 }); };
 
   // Rejimlar
@@ -162,6 +164,15 @@
   document.querySelectorAll('[data-soon]').forEach(function (b) { b.onclick = function () { Y.toast(b.dataset.soon + ' — tez kunda'); }; });
   $('invite').onclick = function () { Y.share('Yo‘lchi’da men bilan poygaga chiq! 🏁', ''); };
   $('sound').onclick = function () { Y.toast('Ovoz o‘yin ichida yoqiladi'); };
+  // Do'kon (Telegram Stars) va hamyon
+  document.querySelectorAll('[data-shop]').forEach(function (b) { b.onclick = function () { Y.haptic(); Y.shop.open(); }; });
+  document.addEventListener('yolchi:wallet', function () {
+    st = Y.state(); $('coins').textContent = (st.coins || 0).toLocaleString('ru-RU'); $('stars').textContent = st.vip ? 'VIP ✓' : 'VIP';
+    var rr = Y.racer(); hero.src = Y.carImage(rr.car, rr.color);
+  });
+  addEventListener('hashchange', function () { if (location.hash === '#shop') { history.replaceState(null, '', location.pathname); Y.shop.open(); } });
+  if (location.hash === '#shop') { history.replaceState(null, '', location.pathname); setTimeout(function () { Y.shop.open(); }, 300); }
+  else Y.shop.sync(true);
 })();
 </script>
 </body>

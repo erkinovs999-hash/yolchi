@@ -22,6 +22,18 @@
       body.dataset.tab = b.dataset.tab; Y.haptic();
     };
   });
+  // Maxsus bo'yoqlar: do'konda olinganlari ochiladi (race.js [data-color] tugmalarini keyin ulaydi)
+  var PAINTS = [['sun', 'Quyosh', '#ff7a3c'], ['ice', 'Muz', '#7f9cff'], ['emerald', 'Zumrad', '#12a37f']];
+  var ownsPaint = function (id) { return !!st.vip || (st.paints || []).indexOf(id) >= 0; };
+  document.querySelectorAll('.swatch.locked').forEach(function (b, i) {
+    var p = PAINTS[i]; if (!p) return;
+    b.removeAttribute('data-soon');
+    if (ownsPaint(p[0])) {
+      b.classList.remove('locked'); b.innerHTML = ''; b.dataset.color = p[2]; b.style.setProperty('--sw', p[2]); b.setAttribute('aria-label', p[1]);
+    } else {
+      b.setAttribute('aria-label', p[1] + ' — do‘konda'); b.addEventListener('click', function () { Y.toast(p[1] + ' bo‘yog‘i — do‘konda'); setTimeout(function () { location.href = '/#shop'; }, 500); });
+    }
+  });
   document.querySelectorAll('[data-soon]').forEach(function (b) { b.addEventListener('click', function () { Y.toast('Tez kunda — do‘konda ochiladi'); }); });
 
   /* ---------- Mashina ma'lumotlari va rasmlar ---------- */
@@ -81,6 +93,7 @@
     var coinsWon = !finished ? 10 : n > 1 ? [80, 50, 40, 30][place - 1] || 30 : 30;
     var xp = finished ? (n > 1 ? 60 - (place - 1) * 10 : 40) : 10;
     st = Y.state();
+    if (st.vip) coinsWon *= 2;
     st.coins += coinsWon; st.xp += xp; if (finished) st.racesToday = (st.racesToday || 0) + 1;
     if (finished && n === 1 && time && (!st.bestRace || time < st.bestRace)) st.bestRace = time;
     Y.save(st); coins();

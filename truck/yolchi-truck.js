@@ -119,7 +119,7 @@
     if (score >= 90 && s < 3) s = Math.max(s, 2);
     st = Y.state(); st.truck = st.truck || {};
     var prev = st.truck[id] || { stars: 0, best: 0 };
-    var coins = id === 'free' ? 20 : 20 * s;
+    var coins = (id === 'free' ? 20 : 20 * s) * (Y.state().vip ? 2 : 1);
     st.truck[id] = { stars: Math.max(prev.stars, s), best: Math.max(prev.best || 0, score) };
     st.coins = (st.coins || 0) + coins; st.xp = (st.xp || 0) + 30;
     Y.save(st);

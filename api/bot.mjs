@@ -2,6 +2,7 @@
 // Kerakli muhit o'zgaruvchisi: BOT_TOKEN (Vercel → Settings → Environment Variables).
 // Ixtiyoriy: SETUP_KEY — sozlamalarni qayta yuborish uchun (/api/bot?setup=<SETUP_KEY>).
 import { createHash, timingSafeEqual } from 'node:crypto';
+import { ITEMS, parsePayload } from './_shop-items.mjs';
 
 const GAME = 'https://bts-avtodrom.vercel.app';
 const BOT = 'yolchigame_bot';
@@ -20,9 +21,12 @@ const TEXT = {
     { command: 'poyga', description: 'Do‘stni poygaga chaqirish' },
     { command: 'yordam', description: 'Boshqaruv va savollar' },
     { command: 'mualliflar', description: '3D modellar mualliflari' },
+    { command: 'dokon', description: 'Do‘kon: tanga va VIP (Telegram Stars)' },
+    { command: 'paysupport', description: 'To‘lov bo‘yicha yordam' },
   ],
 };
 
+const UPDATES = ['message', 'callback_query', 'pre_checkout_query'];
 const secretOf = token => createHash('sha256').update('yolchi:' + token).digest('hex').slice(0, 48);
 
 async function tg(method, body) {
@@ -65,6 +69,9 @@ async function onMessage(m) {
   if (cmd === '/poyga' || cmd === '/race') return raceHelp(send);
   if (cmd === '/yordam' || cmd === '/help') return help(send);
   if (cmd === '/mualliflar') return credits(send);
+  if (cmd === '/dokon' || cmd === '/shop') return send('🛍 <b>Yo‘lchi do‘koni</b>\n\nTanga paketlari va <b>VIP</b> (barcha mukofotlar ×2, maxsus bo‘yoqlar) — Telegram Stars ⭐ orqali.', [[playButton('🛍 Do‘konni ochish', `${GAME}/#shop`)]]);
+  if (cmd === '/paysupport') return send('💬 <b>To‘lov bo‘yicha yordam</b>\n\nXarid bilan muammo bo‘lsa (tanga tushmadi, VIP yoqilmadi va h.k.), shu chatga to‘lov sanasi va nima sotib olganingizni yozing — 48 soat ichida ko‘rib chiqamiz. Zarur bo‘lsa, Stars qaytariladi.\n\nO‘yinda xaridlar avtomatik tiklanadi: do‘konni qayta oching.');
+  if (cmd === '/terms') return send('📄 <b>Shartlar</b>\n\nYo‘lchi’dagi xaridlar raqamli mahsulotlar (o‘yin tangasi, VIP). To‘lov Telegram Stars orqali. Muammo bo‘lsa — /paysupport.');
   return send('O‘yinni ochish uchun pastdagi tugmani bosing 👇', [[playButton()]]);
 }
 
@@ -96,11 +103,28 @@ async function onCallback(q) {
   if (q.data === 'help') return help(send);
 }
 
+async function onPreCheckout(q) {
+  const p = parsePayload(q.invoice_payload), it = p && ITEMS[p.item];
+  const ok = !!it && q.currency === 'XTR' && q.total_amount === it.stars && p.uid === q.from.id;
+  return tg('answerPreCheckoutQuery', ok ? { pre_checkout_query_id: q.id, ok: true }
+    : { pre_checkout_query_id: q.id, ok: false, error_message: 'Xarid eskirgan. Do‘konni qayta ochib, yana urinib ko‘ring.' });
+}
+
+async function onPaid(m) {
+  const p = parsePayload(m.successful_payment.invoice_payload), it = p && ITEMS[p.item];
+  const what = it ? (it.coins ? `<b>${it.title}</b>` : `<b>${it.title}</b> yoqildi`) : 'Xarid';
+  return tg('sendMessage', {
+    chat_id: m.chat.id, parse_mode: 'HTML',
+    text: `✅ Rahmat! ${what}.\n\nO‘yinga qayting — xarid avtomatik qo‘shiladi. Muammo bo‘lsa: /paysupport`,
+    reply_markup: { inline_keyboard: [[playButton('🎮 O‘yinga qaytish')]] },
+  });
+}
+
 async function setup(host) {
   const token = process.env.BOT_TOKEN;
   const url = `https://${host}/api/bot`;
   const res = {};
-  res.webhook = await tg('setWebhook', { url, secret_token: secretOf(token), allowed_updates: ['message', 'callback_query'], drop_pending_updates: true });
+  res.webhook = await tg('setWebhook', { url, secret_token: secretOf(token), allowed_updates: UPDATES, drop_pending_updates: true });
   res.name = await tg('setMyName', { name: TEXT.name });
   res.short = await tg('setMyShortDescription', { short_description: TEXT.short });
   res.description = await tg('setMyDescription', { description: TEXT.description });
@@ -119,19 +143,27 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     const info = await tg('getWebhookInfo');
     const ours = info.result?.url === `https://${host}/api/bot`;
+    // To'lovlar uchun pre_checkout_query kerak — webhook eski bo'lsa, o'zimiz yangilaymiz.
+    if (ours && !(info.result.allowed_updates || []).includes('pre_checkout_query')) {
+      await tg('setWebhook', { url: `https://${host}/api/bot`, secret_token: secretOf(token), allowed_updates: UPDATES });
+      await tg('setMyCommands', { commands: TEXT.commands });
+    }
     const key = new URL(req.url, 'https://x').searchParams.get('setup');
     // Birinchi marta (webhook hali o'rnatilmagan) — kalitsiz; keyin faqat SETUP_KEY bilan.
     if (key !== null && (!ours || (process.env.SETUP_KEY && safeEq(key, process.env.SETUP_KEY)))) {
       return res.status(200).json({ ok: true, setup: await setup(host) });
     }
-    return res.status(200).json({ ok: true, bot: BOT, webhook: ours ? 'ulangan' : 'ulanmagan', pending: info.result?.pending_update_count ?? null });
+    const after = ours ? (await tg('getWebhookInfo')).result : info.result;
+    return res.status(200).json({ ok: true, bot: BOT, webhook: ours ? 'ulangan' : 'ulanmagan', updates: after?.allowed_updates || [], pending: after?.pending_update_count ?? null });
   }
 
   if (req.method !== 'POST') return res.status(405).end();
   if (!safeEq(req.headers['x-telegram-bot-api-secret-token'] || '', secretOf(token))) return res.status(401).end();
   try {
     const u = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    if (u?.message?.text) await onMessage(u.message);
+    if (u?.pre_checkout_query) await onPreCheckout(u.pre_checkout_query);
+    else if (u?.message?.successful_payment) await onPaid(u.message);
+    else if (u?.message?.text) await onMessage(u.message);
     else if (u?.callback_query) await onCallback(u.callback_query);
   } catch (e) {
     console.error(e);
