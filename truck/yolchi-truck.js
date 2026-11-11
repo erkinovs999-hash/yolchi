@@ -121,7 +121,7 @@
     var prev = st.truck[id] || { stars: 0, best: 0 };
     var coins = (id === 'free' ? 20 : 20 * s) * (Y.state().vip ? 2 : 1);
     st.truck[id] = { stars: Math.max(prev.stars, s), best: Math.max(prev.best || 0, score) };
-    st.coins = (st.coins || 0) + coins; st.xp = (st.xp || 0) + 30;
+    st.coins = (st.coins || 0) + coins; st.xp = (st.xp || 0) + 30; if (id !== 'free') st.truckToday = (st.truckToday || 0) + 1;
     Y.save(st);
     Y.toast('+' + coins + ' tanga · ' + s + ' ★');
     Y.haptic('heavy');

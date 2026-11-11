@@ -125,7 +125,7 @@
     if (given) return; given = true;
     var title = ($d('result-title') || {}).textContent || '';
     var passed = /bajarildi|sizniki/i.test(title);
-    st = Y.state(); var c = (passed ? 100 : 20) * (st.vip ? 2 : 1); st.coins = (st.coins || 0) + c; st.xp = (st.xp || 0) + (passed ? 60 : 15); Y.save(st);
+    st = Y.state(); var c = (passed ? 100 : 20) * (st.vip ? 2 : 1); st.coins = (st.coins || 0) + c; st.xp = (st.xp || 0) + (passed ? 60 : 15); if (passed) { st.examToday = (st.examToday || 0) + 1; st.examPassed = (st.examPassed || 0) + 1; } Y.save(st);
     Y.toast('+' + c + ' tanga');
   }).observe(document.body, { attributes: true, attributeFilter: ['data-phase'] });
 

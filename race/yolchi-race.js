@@ -17,7 +17,7 @@
   $('toGarage').onclick = $('changeCar').onclick = function () { step('garage'); };
   document.querySelectorAll('.seg [data-tab]').forEach(function (b) {
     b.onclick = function () {
-      if (b.dataset.tab === 'quick') { Y.toast('Tezkor o‘yin — tez kunda'); return; }
+      if (b.dataset.tab === 'quick') { if (window.__ycQuick) { Y.toast('Tezkor xona qidirilmoqda…'); window.__ycQuick(); } else Y.toast('O‘yin hali yuklanmoqda'); return; }
       document.querySelectorAll('.seg [data-tab]').forEach(function (x) { x.classList.toggle('on', x === b); });
       body.dataset.tab = b.dataset.tab; Y.haptic();
     };
@@ -34,6 +34,8 @@
       b.setAttribute('aria-label', p[1] + ' — do‘konda'); b.addEventListener('click', function () { Y.toast(p[1] + ' bo‘yog‘i — do‘konda'); setTimeout(function () { location.href = '/#shop'; }, 500); });
     }
   });
+  // Hali tayyor bo'lmagan bo'limlar (disk, stiker, 4-mashina) ko'rsatilmaydi
+  document.querySelectorAll('.tabs3 [data-soon], .car-lock[data-soon]').forEach(function (b) { b.remove(); });
   document.querySelectorAll('[data-soon]').forEach(function (b) { b.addEventListener('click', function () { Y.toast('Tez kunda — do‘konda ochiladi'); }); });
 
   /* ---------- Mashina ma'lumotlari va rasmlar ---------- */
@@ -94,7 +96,7 @@
     var xp = finished ? (n > 1 ? 60 - (place - 1) * 10 : 40) : 10;
     st = Y.state();
     if (st.vip) coinsWon *= 2;
-    st.coins += coinsWon; st.xp += xp; if (finished) st.racesToday = (st.racesToday || 0) + 1;
+    st.coins += coinsWon; st.xp += xp; if (finished) { st.racesToday = (st.racesToday || 0) + 1; st.races = (st.races || 0) + 1; if (n > 1 && place === 1) st.wins = (st.wins || 0) + 1; }
     if (finished && n === 1 && time && (!st.bestRace || time < st.bestRace)) st.bestRace = time;
     Y.save(st); coins();
     $('rwCoins').textContent = '+' + coinsWon;

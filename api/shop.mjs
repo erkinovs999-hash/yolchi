@@ -2,7 +2,9 @@
 // POST /api/shop { action: "invoice", item, initData } → { ok, link }   (Telegram Stars hisob-fakturasi)
 // POST /api/shop { action: "sync", initData }          → { ok, purchases: [{ id, item, date }] }
 // Xaridlar ma'lumotlar bazasisiz, to'g'ridan-to'g'ri Telegram'dagi Stars tranzaksiyalaridan olinadi.
-import { ITEMS, checkInitData, makePayload, parsePayload } from './_shop-items.mjs';
+import { ITEMS, checkInitData, makePayload, parsePayload, REF_REWARD, refToken, checkRefToken } from './_shop-items.mjs';
+
+const GAME = 'https://bts-avtodrom.vercel.app';
 
 async function tg(method, body) {
   const r = await fetch(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/${method}`, {
@@ -49,6 +51,24 @@ export default async function handler(req, res) {
       });
       if (!r.ok) return res.status(502).json({ ok: false, error: r.description || 'Telegram xatosi' });
       return res.status(200).json({ ok: true, link: r.result });
+    }
+    // Yangi o'yinchi taklif havolasi bilan kirdi → taklif qilganga botdan mukofot tugmasi yuboriladi
+    if (b.action === 'ref') {
+      const m = /^ref_(\d+)$/.exec(user._start || '');
+      const inviter = m ? Number(m[1]) : 0;
+      if (!inviter || inviter === user.id || user._age > 3600) return res.status(400).json({ ok: false, error: 'Taklif havolasi yaroqsiz' });
+      const name = String(user.first_name || 'Do‘stingiz').replace(/[<>&]/g, '').slice(0, 32);
+      const r = await tg('sendMessage', {
+        chat_id: inviter, parse_mode: 'HTML',
+        text: `🎉 <b>${name}</b> sizning taklifingiz bilan Yo‘lchi’ga qo‘shildi!\n\nMukofotingiz: <b>+${REF_REWARD} tanga</b>.`,
+        reply_markup: { inline_keyboard: [[{ text: `🎁 ${REF_REWARD} tangani olish`, web_app: { url: `${GAME}/?claim=${refToken(token, inviter, user.id)}` } }]] },
+      });
+      return res.status(200).json({ ok: true, reward: REF_REWARD, notified: !!r.ok });
+    }
+    if (b.action === 'claim') {
+      const invitee = checkRefToken(token, user.id, b.token);
+      if (!invitee) return res.status(400).json({ ok: false, error: 'Mukofot kaliti yaroqsiz' });
+      return res.status(200).json({ ok: true, reward: REF_REWARD, invitee });
     }
     if (b.action === 'sync') return res.status(200).json({ ok: true, purchases: await purchasesOf(user.id) });
     return res.status(400).json({ ok: false, error: 'Noma’lum amal' });

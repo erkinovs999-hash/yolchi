@@ -102,7 +102,8 @@
     st = st || {};
     st.coins = st.coins || 0; st.stars = st.stars || 0; st.xp = st.xp || 0;
     st.mode = st.mode || 'race';
-    if (st.day !== today()) { st.day = today(); st.racesToday = 0; st.dailyClaimed = false; }
+    if (st.day !== today()) { st.day = today(); st.racesToday = 0; st.examToday = 0; st.truckToday = 0; st.dailyClaimed = false; st.claims = {}; }
+    st.claims = st.claims || {};
     return st;
   }
   function save(st) { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
@@ -140,7 +141,7 @@
 
   window.Yolchi = {
     inTg: inTg, tg: tg, icon: svg, hydrate: hydrateIcons, layout: layout, toast: toast, haptic: haptic, share: share,
-    state: load, save: save, racer: racer, level: level, cars: CARS, carImage: carImage
+    state: load, save: save, today: today, uid: (inTg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) || 0, racer: racer, level: level, cars: CARS, carImage: carImage
   };
 
   function boot() {

@@ -22,7 +22,15 @@ export function checkInitData(initData, token, maxAgeSec = 7 * 86400) {
   if (!safeEq(calc, hash)) return null;
   const age = Date.now() / 1000 - Number(p.get('auth_date') || 0);
   if (!(age >= -300 && age <= maxAgeSec)) return null;
-  try { const u = JSON.parse(p.get('user') || 'null'); return u && u.id ? u : null; } catch { return null; }
+  try { const u = JSON.parse(p.get('user') || 'null'); if (!u || !u.id) return null; u._start = p.get('start_param') || ''; u._age = age; return u; } catch { return null; }
+}
+
+// Do'st taklifi: taklif qilgan o'yinchi uchun imzolangan mukofot kaliti (ma'lumotlar bazasisiz)
+export const REF_REWARD = 500;
+export const refToken = (token, inviter, invitee) => `${invitee}.${createHmac('sha256', token).update(`ref:${inviter}:${invitee}`).digest('hex').slice(0, 24)}`;
+export function checkRefToken(token, inviter, t) {
+  const m = /^(\d+)\.([a-f0-9]{24})$/.exec(String(t || ''));
+  return m && safeEq(refToken(token, inviter, m[1]), t) ? Number(m[1]) : 0;
 }
 
 // to'lov yuklamasi: yolchi:<item>:<userId>:<vaqt>

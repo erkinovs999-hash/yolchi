@@ -67,7 +67,7 @@
     <a class="glass" href="/race/" style="position:relative;width:64px;height:60px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:700"><span data-ic="garage" data-c="#fff" data-s="20"></span>Garaj</a>
     <button class="glass" data-shop><span data-ic="bag" data-c="#fff" data-s="20"></span>Do‘kon<span class="sale">⭐</span></button>
     <button class="glass" id="tasksBtn"><span data-ic="target" data-c="#fff" data-s="20"></span>Vazifalar<span class="dot" id="taskDot" hidden></span></button>
-    <button class="glass" data-soon="Reyting"><span data-ic="trophy" data-c="#fff" data-s="20"></span>Reyting</button>
+    <button class="glass" id="recBtn"><span data-ic="trophy" data-c="#fff" data-s="20"></span>Rekordlar</button>
   </nav>
 
   <div class="abs content brandrow"><span data-ic="logo" data-s="26"></span><span class="disp" style="font-size:15px;letter-spacing:.04em">YO‘LCHI</span></div>
@@ -89,7 +89,7 @@
     </div>
     <button class="glass invite" id="invite">
       <span style="width:30px;height:30px;border-radius:10px;background:rgba(42,171,238,.18);display:flex;align-items:center;justify-content:center;flex:none" data-ic="users" data-c="#2aabee" data-s="17"></span>
-      <span style="display:flex;flex-direction:column;gap:1px"><b style="font-size:12px">Do‘stni taklif qiling</b><span class="muted" style="font-size:10px;font-weight:600">Birga poygaga chiqing</span></span>
+      <span style="display:flex;flex-direction:column;gap:1px"><b style="font-size:12px">Do‘stni taklif qiling</b><span class="muted" style="font-size:10px;font-weight:600">Ikkalangizga +500 tanga</span></span>
     </button>
   </div>
 
@@ -105,7 +105,7 @@
       </button>
       <button class="mode" data-mode="exam" style="--accent:#4da3ff">
         <span class="top"><span data-ic="wheel" data-c="#4da3ff" data-s="18"></span><span class="badge" style="background:rgba(77,163,255,.18);color:#8cc4ff">B TOIFA</span></span>
-        <b>Avtodrom</b><small>11 mashq · imtihon</small>
+        <b>Avtodrom</b><small>12 mashq · 5 rejim</small>
       </button>
     </div>
     <a class="btn primary" id="play" href="/race/"><span data-ic="play" data-c="#0a1218" data-s="16"></span>O‘YNASH</a>
@@ -115,6 +115,7 @@
 <script src="/ui/yolchi.js"></script>
 <script src="/ui/overlay.js"></script>
 <script src="/ui/shop.js?v=2"></script>
+<script src="/ui/hub.js?v=1"></script>
 <script>
 (function () {
   var Y = window.Yolchi, st = Y.state(), r = Y.racer();
@@ -140,14 +141,16 @@
     var n = Math.min(st.racesToday || 0, 3);
     $('dailyBar').style.width = (n / 3 * 100) + '%'; $('dailyCount').textContent = n + '/3';
     var done = n >= 3;
-    $('claim').hidden = !done || st.dailyClaimed;
-    $('taskDot').hidden = !(done && !st.dailyClaimed);
+    $('claim').hidden = !done || st.dailyClaimed || !!st.claims.race;
+    $('taskDot').hidden = !Y.hub.pending();
     var now = new Date(), end = new Date(now); end.setHours(24, 0, 0, 0);
-    $('dailyLeft').textContent = st.dailyClaimed ? 'olindi ✓' : Math.ceil((end - now) / 3600000) + ' soat';
+    $('dailyLeft').textContent = st.dailyClaimed || st.claims.race ? 'olindi ✓' : Math.ceil((end - now) / 3600000) + ' soat';
   }
   daily();
-  $('claim').onclick = function () { st.coins += st.vip ? 300 : 150; st.xp += 50; st.dailyClaimed = true; Y.save(st); $('coins').textContent = st.coins.toLocaleString('ru-RU'); daily(); Y.haptic('medium'); Y.toast(st.vip ? '+300 tanga! (VIP ×2)' : '+150 tanga!'); };
-  $('tasksBtn').onclick = function () { var d = $('daily'); d.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.04)' }, { transform: 'scale(1)' }], { duration: 350 }); };
+  $('claim').onclick = function () { st = Y.state(); st.coins += st.vip ? 300 : 150; st.xp += 50; st.dailyClaimed = true; st.claims.race = true; Y.save(st); $('coins').textContent = st.coins.toLocaleString('ru-RU'); daily(); Y.haptic('medium'); Y.toast(st.vip ? '+300 tanga! (VIP ×2)' : '+150 tanga!'); };
+  $('tasksBtn').onclick = function () { Y.haptic(); Y.hub.tasks(); };
+  $('recBtn').onclick = function () { Y.haptic(); Y.hub.records(); };
+  $('daily').style.cursor = 'pointer'; $('daily').addEventListener('click', function (e) { if (!e.target.closest('#claim')) Y.hub.tasks(); });
 
   // Rejimlar
   function pick(mode) {
@@ -162,17 +165,24 @@
 
   $('play').addEventListener('click', function () { if (st.mode === 'race') try { sessionStorage.setItem('yolchi-step', 'mode'); } catch (e) {} });
   document.querySelectorAll('[data-soon]').forEach(function (b) { b.onclick = function () { Y.toast(b.dataset.soon + ' — tez kunda'); }; });
-  $('invite').onclick = function () { Y.share('Yo‘lchi’da men bilan poygaga chiq! 🏁', ''); };
-  $('sound').onclick = function () { Y.toast('Ovoz o‘yin ichida yoqiladi'); };
+  $('invite').onclick = function () { Y.hub.invite(); };
+  // Ovoz: umumiy sozlama (avtodrom sozlamalari bilan bir xil joyda saqlanadi)
+  function sndGet() { try { return JSON.parse(localStorage.getItem('yolchi-settings') || '{}').snd !== false; } catch (e) { return true; } }
+  function sndPaint() { var on = sndGet(); $('sound').setAttribute('aria-pressed', String(on)); $('sound').style.opacity = on ? '1' : '.5'; }
+  sndPaint();
+  $('sound').onclick = function () { var s = {}; try { s = JSON.parse(localStorage.getItem('yolchi-settings') || '{}'); } catch (e) {} s.snd = !sndGet(); try { localStorage.setItem('yolchi-settings', JSON.stringify(s)); } catch (e) {} sndPaint(); Y.haptic(); Y.toast(s.snd ? 'Ovoz yoqildi' : 'Ovoz o‘chirildi'); };
   // Do'kon (Telegram Stars) va hamyon
   document.querySelectorAll('[data-shop]').forEach(function (b) { b.onclick = function () { Y.haptic(); Y.shop.open(); }; });
   document.addEventListener('yolchi:wallet', function () {
-    st = Y.state(); $('coins').textContent = (st.coins || 0).toLocaleString('ru-RU'); $('stars').textContent = st.vip ? 'VIP ✓' : 'VIP';
+    st = Y.state(); $('coins').textContent = (st.coins || 0).toLocaleString('ru-RU'); $('stars').textContent = st.vip ? 'VIP ✓' : 'VIP'; daily();
     var rr = Y.racer(); hero.src = Y.carImage(rr.car, rr.color);
   });
   addEventListener('hashchange', function () { if (location.hash === '#shop') { history.replaceState(null, '', location.pathname); Y.shop.open(); } });
   if (location.hash === '#shop') { history.replaceState(null, '', location.pathname); setTimeout(function () { Y.shop.open(); }, 300); }
   else Y.shop.sync(true);
+  Y.hub.referral();
+  // Kunlik bonus hali olinmagan bo'lsa — vazifalar oynasi o'zi ochiladi
+  if (!Y.hub.bonusClaimed() && location.hash !== '#shop' && !/claim=/.test(location.search)) setTimeout(function () { Y.hub.tasks(); }, 700);
 })();
 </script>
 </body>
