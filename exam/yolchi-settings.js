@@ -53,7 +53,7 @@
     '<div class="row"><span>Ovoz</span><button class="tg" id="snd" aria-label="Ovozni yoqish"><i></i></button></div>' +
     '<div class="row"><span>Dvigatel</span><input type="range" id="vEng" min="0" max="100" step="5"><output id="vEngO"></output></div>' +
     '<div class="row"><span>Effektlar</span><input type="range" id="vFx" min="0" max="100" step="5"><output id="vFxO"></output></div>' +
-    '<p class="note">Effektlar: burilish chirog‘i, uzatma, qo‘l tormozi, jarima signali, yomg‘ir.</p></div></div>' +
+    '<span class="lbl" style="margin-top:6px">Kamera</span>' + seg('cam', [['0', 'Orqadan', ''], ['1', 'Salondan', '1-shaxs'], ['2', 'Tepadan', '']]) + '</div></div>' +
     '<button class="btn primary done" id="ok">TAYYOR</button></div>';
   o.icons();
   var q = function (id) { return o.root.getElementById(id); };
@@ -63,6 +63,7 @@
     q('sens').value = Math.round(S.sens * 100); q('sensO').textContent = Math.round(S.sens * 100) + '%'; q('sens').disabled = S.steer === 'buttons';
     q('steerNote').textContent = NOTE[S.steer];
     q('transNote').textContent = S.trans === 'auto' ? 'Avtomatda ilashish pedali yo‘q, dvigatel o‘chib qolmaydi. D — oldinga, R — orqaga.' : 'Haqiqiy imtihondagidek: uzatmani ilashish pedali bosilganda almashtiring.';
+    var cm = String(window.__ycCam ? window.__ycCam() : 0); q('cam').querySelectorAll('[data-v]').forEach(function (b) { b.classList.toggle('on', b.dataset.v === cm); });
     q('snd').classList.toggle('on', !!S.snd);
     q('vEng').value = Math.round(S.vEng * 100); q('vEngO').textContent = Math.round(S.vEng * 100) + '%';
     q('vFx').value = Math.round(S.vFx * 100); q('vFxO').textContent = Math.round(S.vFx * 100) + '%';
@@ -79,6 +80,7 @@
       };
     });
   });
+  q('cam').querySelectorAll('[data-v]').forEach(function (b) { b.onclick = function () { window.__ycCam && window.__ycCam(+b.dataset.v); Y.haptic(); render(); }; });
   q('sens').oninput = function () { set('sens', q('sens').value / 100); render(); };
   q('vEng').oninput = function () { set('vEng', q('vEng').value / 100); render(); };
   q('vFx').oninput = function () { set('vFx', q('vFx').value / 100); render(); };
