@@ -62,6 +62,13 @@
     '.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}',
     '.rec{padding:11px 12px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);display:flex;flex-direction:column;gap:3px}',
     '.rec b{font-family:Unbounded,sans-serif;font-size:17px;font-weight:800}.rec span{font-size:10px;font-weight:700;color:var(--muted)}',
+    '.tabs{display:flex;gap:4px;padding:3px;border-radius:11px;background:rgba(255,255,255,.06);margin-bottom:10px}',
+    '.tabs button{flex:1;height:30px;border-radius:9px;font-size:11.5px;font-weight:800;color:var(--muted)}.tabs button.on{background:var(--lime);color:#0a1218}',
+    '.rows{max-height:206px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;pointer-events:auto;touch-action:pan-y}',
+    '.row{display:flex;align-items:center;gap:10px;height:32px;flex:none;padding:0 12px;border-radius:10px;background:rgba(255,255,255,.05);font-size:12px;font-weight:700}',
+    '.row i{width:26px;font-style:normal;font-weight:800;color:var(--muted);text-align:center}.row span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.row b{font-family:Unbounded,sans-serif;font-size:11.5px}',
+    '.row em{font-style:normal;font-size:8px;font-weight:800;padding:2px 5px;border-radius:99px;background:linear-gradient(90deg,#ffd76a,#ff9f43);color:#2a1700;vertical-align:middle}',
+    '.row.me{background:rgba(198,242,78,.14);border:1px solid var(--lime)}',
     '.note{margin:10px 0 0;font-size:9.5px;font-weight:600;color:var(--muted);line-height:1.4}'
   ].join('');
   var o, q, mode = 'tasks';
@@ -90,18 +97,48 @@
       }).join('');
       var bb = q('bonus'); if (bb) bb.onclick = claimBonus;
       o.root.querySelectorAll('[data-claim]').forEach(function (x) { x.onclick = function () { claimTask(x.dataset.claim); }; });
+    } else if (mode === 'records' && tab !== 'me') {
+      q('title').textContent = 'REYTING';
+      q('body').innerHTML = tabsHtml() + boardHtml();
+      bindTabs();
     } else {
       var lv = Y.level(st.xp || 0), best = 0, stars = 0; try { best = +localStorage.getItem('yolchi-exam-best') || 0; } catch (e) {}
       Object.keys(st.truck || {}).forEach(function (k) { stars += st.truck[k].stars || 0; });
       var rec = [[lv.lv + '-daraja', fmt(st.xp) + ' tajriba'], [st.bestRace || '—', 'Poyga: eng yaxshi vaqt'], [fmt(st.wins), 'Poygada g‘alabalar'],
         [best ? Math.floor(best / 60) + ':' + String(best % 60).padStart(2, '0') : '—', 'Avtodrom: vaqtga qarshi'], [fmt(st.examPassed), 'Topshirilgan imtihon va mashqlar'], [stars + ' / 9', 'Yuk mashinasi yulduzlari'],
         [fmt(st.races), 'Tugatilgan poygalar'], [(st.streak || 0) + ' kun', 'Ketma-ket kirish'], [fmt((st.refs || []).length), 'Taklif qilingan do‘stlar']];
-      q('title').textContent = 'REKORDLAR';
-      q('body').innerHTML = '<div class="grid">' + rec.map(function (r) { return '<div class="rec"><b>' + r[0] + '</b><span>' + r[1] + '</span></div>'; }).join('') + '</div>' +
+      q('title').textContent = 'REYTING';
+      q('body').innerHTML = tabsHtml() + '<div class="grid">' + rec.map(function (r) { return '<div class="rec"><b>' + r[0] + '</b><span>' + r[1] + '</span></div>'; }).join('') + '</div>' +
         '<p class="note">Bu sizning shaxsiy natijalaringiz — shu qurilmada saqlanadi.</p>';
+      bindTabs();
     }
   }
-  function open(m) { o || build(); mode = m; o.show(true); render(); }
+  /* ---- umumiy reyting ---- */
+  var tab = 'race', boards = null, lbErr = '';
+  var TABS = [['race', 'Poyga'], ['exam', 'Avtodrom'], ['xp', 'Daraja'], ['me', 'Mening rekordlarim']];
+  function secs(t) { var m = /^(\d+):(\d+(?:\.\d+)?)$/.exec(t || ''); return m ? +m[1] * 60 + +m[2] : 0; }
+  function clock(v) { var m = Math.floor(v / 60), s = v - m * 60; return m + ':' + (s < 10 ? '0' : '') + (Math.round(s * 10) / 10).toFixed(s % 1 ? 1 : 0); }
+  function tabsHtml() { return '<div class="tabs">' + TABS.map(function (t) { return '<button data-tab="' + t[0] + '" class="' + (t[0] === tab ? 'on' : '') + '">' + t[1] + '</button>'; }).join('') + '</div>'; }
+  function bindTabs() { o.root.querySelectorAll('[data-tab]').forEach(function (b) { b.onclick = function () { tab = b.dataset.tab; Y.haptic(); render(); }; }); }
+  function val(v) { return tab === 'xp' ? Y.level(v).lv + '-daraja · ' + fmt(v) : clock(v); }
+  function boardHtml() {
+    if (!init) return '<p class="note">Umumiy reyting faqat Telegram ichida ko‘rinadi.</p>';
+    if (lbErr) return '<p class="note">' + lbErr + '</p>';
+    if (!boards) return '<p class="note">Yuklanmoqda…</p>';
+    var b = boards[tab], hint = { race: 'Yakka poygadagi eng yaxshi vaqt', exam: 'Avtodrom “Vaqtga qarshi” natijasi', xp: 'Umumiy tajriba' }[tab];
+    if (!b.top.length) return '<p class="note">' + hint + '. Hali hech kim yo‘q — birinchi bo‘ling!</p>';
+    var rows = b.top.map(function (r) { return '<div class="row' + (r.me ? ' me' : '') + '"><i>' + (r.rank <= 3 ? ['🥇', '🥈', '🥉'][r.rank - 1] : r.rank) + '</i><span>' + r.name + (r.vip ? ' <em>VIP</em>' : '') + '</span><b>' + val(r.v) + '</b></div>'; }).join('');
+    var mine = b.me ? (b.me.rank > b.top.length ? 'Sizning o‘rningiz: ' + b.me.rank + ' / ' + b.total + ' · ' + val(b.me.v) : 'Sizning o‘rningiz: ' + b.me.rank + ' / ' + b.total) : 'Siz hali bu jadvalda yo‘qsiz';
+    return '<div class="rows">' + rows + '</div><p class="note">' + hint + '. ' + mine + '.</p>';
+  }
+  function loadBoards() {
+    if (!init) return;
+    var st = Y.state(), best = 0; try { best = +localStorage.getItem('yolchi-exam-best') || 0; } catch (e) {}
+    fetch('/api/lb', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ initData: init, race: secs(st.bestRace), exam: best, xp: st.xp || 0, vip: !!st.vip }) })
+      .then(function (r) { return r.json(); }).then(function (r) { if (r.ok) { boards = r.boards; lbErr = ''; } else lbErr = r.error || 'Reytingni yuklab bo‘lmadi'; render(); })
+      .catch(function () { lbErr = 'Internet aloqasini tekshiring'; render(); });
+  }
+  function open(m) { o || build(); mode = m; o.show(true); if (m === 'records') { if (!init) tab = 'me'; loadBoards(); } render(); }
 
   /* ---- do'st taklifi ---- */
   function api(body) { return fetch('/api/shop', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(Object.assign({ initData: init }, body)) }).then(function (r) { return r.json(); }); }
