@@ -67,6 +67,19 @@
   new MutationObserver(function () { $('track-shadow').setAttribute('d', tp.getAttribute('d') || ''); }).observe(tp, { attributes: true, attributeFilter: ['d'] });
   function coins() { document.querySelectorAll('.coins').forEach(function (el) { el.textContent = st.coins.toLocaleString('ru-RU'); }); }
   coins();
+  /* ---------- Trassa tanlash (almashtirilganda sahifa qayta yuklanadi) ---------- */
+  var TR = { id: 0, name: 'Toshkent Ring' };
+  function bestOf(s) { return TR.id ? (s.bestRaceT || {})[TR.id] : s.bestRace; }
+  function setBest(s, t) { if (TR.id) { s.bestRaceT = s.bestRaceT || {}; s.bestRaceT[TR.id] = t; } else s.bestRace = t; }
+  (function trk() {
+    var T = window.__ycTracks; if (!T) return setTimeout(trk, 60);
+    var n = T.list.length; TR = { id: T.id, name: T.list[T.id].name };
+    $('trkNo').textContent = '0' + (T.id + 1) + ' / 0' + n;
+    $('trkName').textContent = TR.name; $('trkSub').textContent = T.list[T.id].sub; $('soloTrk').textContent = TR.name; $('miniTrk').textContent = TR.name.toUpperCase(); $('result-note').textContent = TR.name + ' · 3 aylana';
+    $('best').textContent = bestOf(st) || '—';
+    $('trkPrev').onclick = function () { Y.haptic(); T.set((T.id + n - 1) % n); };
+    $('trkNext').onclick = function () { Y.haptic(); T.set((T.id + 1) % n); };
+  })();
   $('best').textContent = st.bestRace || '—';
 
   /* ---------- HUD: o'rin ---------- */
@@ -98,14 +111,14 @@
     st = Y.state();
     if (st.vip) coinsWon *= 2;
     st.coins += coinsWon; st.xp += xp; if (finished) { st.racesToday = (st.racesToday || 0) + 1; st.races = (st.races || 0) + 1; if (n > 1 && place === 1 && !solo) st.wins = (st.wins || 0) + 1; }
-    if (finished && (solo || n === 1) && time && (!st.bestRace || time < st.bestRace)) st.bestRace = time;
+    if (finished && (solo || n === 1) && time && (!bestOf(st) || time < bestOf(st))) setBest(st, time);
     Y.save(st); coins();
     $('rwCoins').textContent = '+' + coinsWon;
     $('rwXp').lastChild.textContent = '+' + xp + ' tajriba';
     var lv = Y.level(st.xp);
     $('rwLv').textContent = lv.lv + '-daraja'; $('rwLvNum').textContent = lv.cur + ' / ' + lv.need; $('rwLvBar').style.width = Math.round(lv.cur / lv.need * 100) + '%';
-    $('placeLine').textContent = n > 1 ? (place + '-o‘rin · ' + n + (solo ? ' mashina' : ' o‘yinchi') + (time ? ' · ' + time : '') + (solo && finished && st.bestRace === time ? ' · yangi rekord!' : '')) : (finished ? 'Vaqtingiz: ' + time + (st.bestRace === time ? ' · yangi rekord!' : '') : 'Poyga yakunlanmadi');
-    resultText = n > 1 ? 'Yo‘lchi’da Toshkent Ring poygasida ' + place + '-o‘rinni oldim! 🏁' : 'Yo‘lchi’da Toshkent Ring: ' + (time || '3 aylana') + ' ⏱ Meni yengib ko‘r!';
+    $('placeLine').textContent = n > 1 ? (place + '-o‘rin · ' + n + (solo ? ' mashina' : ' o‘yinchi') + (time ? ' · ' + time : '') + (solo && finished && bestOf(st) === time ? ' · yangi rekord!' : '')) : (finished ? 'Vaqtingiz: ' + time + (bestOf(st) === time ? ' · yangi rekord!' : '') : 'Poyga yakunlanmadi');
+    resultText = n > 1 ? 'Yo‘lchi’da ' + TR.name + ' poygasida ' + place + '-o‘rinni oldim! 🏁' : 'Yo‘lchi’da ' + TR.name + ': ' + (time || '3 aylana') + ' ⏱ Meni yengib ko‘r!';
     Y.haptic('heavy');
   }
   new MutationObserver(function () {

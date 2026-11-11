@@ -10,7 +10,7 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="/tg.js?v=6"></script>
 <link rel="stylesheet" href="/ui/yolchi.css">
-<link rel="stylesheet" href="/race/yolchi-race.css">
+<link rel="stylesheet" href="/race/yolchi-race.css?v=2">
 </head>
 <body data-phase="menu" data-step="garage">
 <canvas id="scene" tabindex="0" aria-label="Poyga maydoni"></canvas>
@@ -99,17 +99,16 @@
       </div>
       <div class="abs glass modepanel step-mode tab-solo">
         <div class="mysel"><img alt="" id="mySelImg2"><div><span class="lbl">Sizning mashinangiz</span><b id="mySelName2">Gentra</b><span class="muted" id="mySelSub2"></span></div></div>
-        <p class="muted" style="font-size:12px;font-weight:600;line-height:1.5;margin:0">Toshkent Ring’da 3 ta raqib bilan 3 aylana. O‘rningizga qarab tanga oling, vaqtingiz reytingga yoziladi.</p>
+        <p class="muted" style="font-size:12px;font-weight:600;line-height:1.5;margin:0"><span id="soloTrk">Toshkent Ring</span>’da 3 ta raqib bilan 3 aylana. O‘rningizga qarab tanga oling, vaqtingiz reytingga yoziladi.</p>
         <button class="btn primary big" id="solo"><span data-ic="play" data-c="#0a1218" data-s="16"></span>Botlar bilan poyga</button>
       </div>
     </section>
 
     <!-- 03 · Rejim (xona ochish / qo'shilish / yakka) -->
       <div class="abs glass track step-mode lobby-show">
-        <div class="row"><span class="lbl">Trassa</span><span class="lbl" style="color:var(--lime)">01</span></div>
+        <div class="row"><span class="lbl">Trassa</span><span class="lbl" id="trkNo" style="color:var(--lime)">01 / 03</span></div>
         <div class="trackbox"><svg viewBox="-170 -125 345 260" aria-hidden="true"><path class="shadow" id="track-shadow"/><path id="track-path"/></svg></div>
-        <b class="disp" style="font-size:16px">Toshkent Ring</b>
-        <span class="muted" style="font-size:11px;font-weight:600">Shahar halqasi · 11 burilish</span>
+        <div class="trknav"><button class="trkbtn" id="trkPrev" aria-label="Oldingi trassa">‹</button><div><b class="disp" id="trkName" style="font-size:14px;white-space:nowrap">Toshkent Ring</b><span class="muted" id="trkSub" style="font-size:11px;font-weight:600;display:block">Shahar halqasi · 11 burilish</span></div><button class="trkbtn" id="trkNext" aria-label="Keyingi trassa">›</button></div>
         <div class="tstats">
           <div><span class="lbl">Aylana</span><b>3</b></div>
           <div><span class="lbl">Masofa</span><b id="track-length">—</b></div>
@@ -150,7 +149,7 @@
   <!-- ======= 05 · HUD ======= -->
   <section id="hud" hidden aria-label="Poyga ko‘rsatkichlari">
     <ol id="leaderboard" class="abs glass leaderboard"></ol>
-    <div class="abs glass mini"><span class="minihead"><span>TOSHKENT RING</span><span id="ping">SOLO</span></span><canvas id="minimap" width="340" height="260" aria-label="Trassa xaritasi"></canvas></div>
+    <div class="abs glass mini"><span class="minihead"><span id="miniTrk">TOSHKENT RING</span><span id="ping">SOLO</span></span><canvas id="minimap" width="340" height="260" aria-label="Trassa xaritasi"></canvas></div>
     <div class="abs speedo">
       <div class="sp"><strong id="speed" class="disp">0</strong><span class="sc"><b id="gear">N</b><small>km/soat</small></span></div>
       <div class="bar rev"><i id="revs"></i></div>
@@ -216,8 +215,8 @@
 <div id="fatal" class="fatal" hidden><div><b>O‘yin yuklanmadi.</b><p>Sahifani yangilab, qayta urinib ko‘ring.</p><a href="./" class="btn primary" style="height:44px;padding:0 18px">Qayta yuklash</a></div></div>
 
 <script src="/ui/yolchi.js"></script>
-<script src="/race/yolchi-race.js?v=4"></script>
-<script type="module" src="/race/race.js?v=bot1"></script>
+<script src="/race/yolchi-race.js?v=5"></script>
+<script type="module" src="/race/race.js?v=trk1"></script>
 <noscript>O‘ynash uchun brauzerda JavaScript’ni yoqing.</noscript>
 </body>
 </html>
