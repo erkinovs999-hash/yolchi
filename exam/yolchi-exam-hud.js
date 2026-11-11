@@ -67,6 +67,11 @@
     '.mode-buttons .wheel,.mode-buttons .tilt,.mode-wheel .stb,.mode-wheel .tilt,.mode-tilt .wheel,.mode-tilt .stb{display:none!important}',
     '.mode-buttons .sig{bottom:calc(var(--B) + 100px);right:calc(var(--R) + 40px)}.mode-tilt .sig{bottom:calc(var(--B) + 80px);right:calc(var(--R) + 45px)}',
     '.auto #pc{display:none}',
+    '.task u{text-decoration:none;flex:none;width:18px;height:18px;border-radius:50%;background:var(--blue);color:#06182b;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center}',
+    '.guide{position:absolute;left:50%;top:calc(var(--T) + 42px);transform:translateX(-50%);width:400px;padding:12px 16px 12px;border-radius:16px;background:rgba(14,26,34,.95);border:1px solid rgba(77,163,255,.5);box-shadow:0 20px 50px rgba(0,0,0,.5);z-index:5}',
+    '.guide b{font-family:Unbounded,sans-serif;font-size:13px;font-weight:800;color:var(--blue)}',
+    '.guide ol{margin:8px 0 10px;padding-left:20px;display:flex;flex-direction:column;gap:5px;font-size:11.5px;font-weight:600;line-height:1.35;color:var(--soft)}',
+    '.guide button{width:100%;height:34px;border-radius:10px;background:var(--blue);color:#06182b;font-weight:800;font-size:12px}',
     '#ui,#ui *{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}',
     ':host-context(.narrow) .task{max-width:300px}'
   ].join('');
@@ -85,7 +90,8 @@
     '<div class="stats"><div><b id="pts">0<small>/100</small></b><span>JARIMA</span></div><div><b id="tm">0:00</b><span>VAQT</span></div><div><b id="stg">01<small>/12</small></b><span id="stgL">MASHQ</span></div><div class="lim" id="lim">20</div></div>' +
     '<div class="r"><button class="iconbtn" id="set" aria-label="Sozlamalar"><span data-ic="sliders" data-c="#fff" data-s="15"></span></button><button class="iconbtn" id="snd" aria-label="Ovoz"><span data-ic="sound" data-c="#fff" data-s="15"></span></button><button class="iconbtn" id="cam" aria-label="Kamera"><span data-ic="camera" data-c="#fff" data-s="15"></span></button>' +
     '<button class="iconbtn" id="hlp" aria-label="Qoidalar"><span data-ic="help" data-c="#fff" data-s="15"></span></button></div></div>' +
-    '<div class="task pe" id="task"><b id="tt"></b><i id="tc"></i></div><div class="toast" id="toast"></div>' +
+    '<div class="task pe" id="task"><b id="tt"></b><i id="tc"></i><u id="tq">?</u></div><div class="toast" id="toast"></div>' +
+    '<div class="guide pe" id="guide" hidden><b id="gT"></b><ol id="gL"></ol><button id="gOk">TUSHUNARLI</button></div>' +
     '<div class="gauge"><svg width="94" height="94" viewBox="0 0 94 94"><circle cx="47" cy="47" r="45" fill="rgba(14,26,34,.85)" stroke="rgba(255,255,255,.12)"/>' +
     '<path d="' + arc(37, -135, 135) + '" stroke="rgba(255,255,255,.12)" stroke-width="6" fill="none" stroke-linecap="round"/>' +
     '<path id="ga" d="' + arc(37, -135, -134) + '" stroke="#4da3ff" stroke-width="6" fill="none" stroke-linecap="round"/>' +
@@ -112,6 +118,32 @@
     el.addEventListener('click', function (e) { if (e.detail === 0) fn(); });   // klaviatura (Enter/Space)
   };
   Object.keys(map).forEach(function (k) { tapNow(q(k), function () { Y.press($d(map[k])); Y.haptic(); }); });
+  // Mashq ko'rsatmalari: har bir mashq qanday bajarilishi (qadamma-qadam)
+  var GUIDE = {
+    start: ['Kamarni taqing va dvigatelni yoqing.', 'Chap burilish ishorasini yoqing.', 'Ilashishni bosib 1-uzatmani qo‘shing (avtomatda — D).', 'Qo‘l tormozini tushirib, ilashishni sekin qo‘yib yuboring va START chizig‘idan o‘ting.'],
+    pedestrian: ['Zebraga sekin yaqinlashing.', 'Stop-chiziq oldida to‘liq to‘xtang (ilashishni bosishni unutmang).', 'Piyoda yo‘lni to‘liq kesib o‘tishini kuting.', 'So‘ng harakatni davom ettiring.'],
+    railway: ['STOP belgisi oldidagi chiziqda to‘liq to‘xtang.', 'Kamida 2 soniya turing — chapga va o‘ngga qarang.', 'Relslar ustida to‘xtamasdan, bir tekis o‘tib keting.', 'Chorrahada chapga — shimolga buriling.'],
+    uturn: ['O‘ng ishorani yoqib, tor yo‘lakka kiring.', 'Yo‘lak oxirigacha borib to‘xtang.', 'R ni qo‘shib, yon cho‘ntakka orqa bilan kiring.', '1-uzatmada chiqib, kelgan tomoningizga qayting.'],
+    signal: ['Svetoforga sekin yaqinlashing.', 'Qizil yoki sariqda stop-chiziq oldida to‘xtang.', 'Yashil yonganda chorrahadan to‘g‘riga o‘ting.', 'Chiziqni qizilda kesish — 30 jarima balli.'],
+    serpentine: ['O‘ng ishorani yoqib, egri yo‘lakka buriling.', '1-uzatmada, past tezlikda yuring.', 'Rulni oldindan, bir tekis burang.', 'Bordyurga tegmasdan yashil nuqtalar bo‘ylab o‘ting.'],
+    hill: ['Qiyalikdagi chiziqqa yetib to‘xtang.', 'Qo‘l tormozini torting va 2 soniya kuting.', 'Gaz bering, ilashishni sekin qo‘yib, qo‘l tormozini tushiring.', 'Orqaga 30 sm dan ortiq sirpanmang.'],
+    acceleration: ['To‘g‘ri yo‘lda gaz bering.', '10–12 km/soatda 2-uzatmaga o‘ting.', 'Kamida 20 km/soatga yeting, 40 dan oshirmang.', 'Bo‘lak oxirida tezlikni kamaytiring.'],
+    garage: ['Ichki yo‘lga burilib, garaj qutisidan biroz o‘tib to‘xtang.', 'R ni qo‘shing va orqaga sekin yuring.', 'Rulni quti tomonga burab, chiziqlar ichiga kiring.', 'Tekislab to‘xtang va qo‘l tormozini torting.'],
+    brake: ['Sariq STOP chizig‘iga yaqinlashing.', 'Oldindan tormoz bosa boshlang.', 'Chiziq oldida to‘liq to‘xtang — undan o‘tib ketmang.', '2 soniya turing.'],
+    parking: ['Bo‘sh joy yonidan o‘tib, undan biroz oldinda to‘xtang.', 'R ni qo‘shing, rulni joy tomonga burang.', 'Orqa qism kirgach, rulni teskari burab tekislang.', 'Chiziqlar ichida to‘xtab, qo‘l tormozini torting.'],
+    finish: ['FINISH maydonchasiga kiring.', 'To‘liq to‘xtang.', 'N ni tanlang.', 'Qo‘l tormozini torting.']
+  };
+  var gShown = -1;
+  function stageNow() { var Yc = window.__yc, P = Yc && Yc.pe && Yc.pe(); if (!P || P.mode === 'free' || P.mode === 'city') return null; var s = Yc.stages[P.stage]; return s ? { i: P.stage, s: s, mode: P.mode } : null; }
+  function guide(open) {
+    var n = stageNow();
+    if (!open || !n || !GUIDE[n.s.id]) { q('guide').hidden = true; return; }
+    q('gT').textContent = (n.s.no ? n.s.no + '-mashq · ' : '') + n.s.name;
+    q('gL').innerHTML = GUIDE[n.s.id].map(function (x) { return '<li>' + x + '</li>'; }).join('');
+    q('guide').hidden = false;
+  }
+  tapNow(q('gOk'), function () { guide(false); Y.haptic(); });
+  tapNow(q('task'), function () { guide(q('guide').hidden); });
   // Ovoz: yoqish / o'chirish (holat saqlanadi)
   var sndSync = function () { var on = window.__ycSound ? window.__ycSound() : true; q('snd').setAttribute('aria-pressed', on ? 'true' : 'false'); q('snd').style.opacity = on ? '1' : '.45'; };
   tapNow(q('snd'), function () { window.__ycSound && window.__ycSound(!window.__ycSound()); Y.haptic(); sndSync(); });
@@ -195,6 +227,9 @@
     q('stg').innerHTML = (sc[0] || '').trim() + (sc[1] ? '<small>/' + sc[1].trim() + '</small>' : '');
     q('tt').textContent = txt('task-title'); q('tc').textContent = txt('task-condition');
 
+    var sn = stageNow(); q('tq').style.display = sn ? '' : 'none';
+    if (sn && sn.mode === 'practice' && gShown !== sn.i) { gShown = sn.i; guide(true); }   // mashq rejimida ko'rsatma o'zi ochiladi
+    if (!sn && !q('guide').hidden) guide(false);
     var t = $d('toast'), show = t && !t.hidden && t.textContent.trim();
     q('toast').classList.toggle('on', !!show); if (show) q('toast').textContent = t.textContent;
 
@@ -210,7 +245,7 @@
   }
   function sync() {
     var run = document.body.dataset.phase === 'running';
-    o.show(run); if (run) sndSync();
+    o.show(run); if (run) sndSync(); else if (document.body.dataset.phase === 'menu') { gShown = -1; q('guide').hidden = true; }
     if (run && !raf) raf = requestAnimationFrame(frame);
     if (!run && raf) { cancelAnimationFrame(raf); raf = 0; rot = 0; drag = null; window.__yWheel = 0; }
   }

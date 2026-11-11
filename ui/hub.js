@@ -97,6 +97,11 @@
           '<span class="rw">' + Y.icon('coin', null, 15) + '+' + t.coins * m + '</span>' +
           (cl ? '<span class="act done">Olindi ✓</span>' : done ? '<button class="act go" data-claim="' + t.id + '">Olish</button>' : '<a class="act" href="' + t.url + '">O‘ynash</a>') + '</div>';
       }).join('');
+      if (Y.ads && Y.ads.ready) {
+        var al = Y.ads.left();
+        q('body').insertAdjacentHTML('beforeend', '<div class="task"><div class="tx"><b>Reklama ko‘rib tanga oling</b><div class="pr">Bugun qoldi: ' + al + ' / ' + Y.ads.limit + '</div></div><span class="rw">' + Y.icon('coin', null, 15) + '+' + Y.ads.reward * m + '</span>' + (al ? '<button class="act go" id="adBtn">Ko‘rish</button>' : '<span class="act done">Ertaga</span>') + '</div>');
+        var ab = q('adBtn'); if (ab) ab.onclick = function () { ab.disabled = true; Y.ads.show().then(render); };
+      }
       var bb = q('bonus'); if (bb) bb.onclick = claimBonus;
       o.root.querySelectorAll('[data-claim]').forEach(function (x) { x.onclick = function () { claimTask(x.dataset.claim); }; });
     } else if (mode === 'records' && tab === 'ach') {
