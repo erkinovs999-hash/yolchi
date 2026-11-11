@@ -92,18 +92,19 @@
     }
     if (!place && list.length === 1) { place = 1; var t1 = list[0].querySelector('.result-time'); time = t1 && t1.firstChild ? t1.firstChild.textContent : ''; finished = !!(t1 && /FINISH|jarima/.test(t1.textContent)); }
     var n = list.length;
-    var coinsWon = !finished ? 10 : n > 1 ? [80, 50, 40, 30][place - 1] || 30 : 30;
+    var net = window.__ycNet && window.__ycNet(), solo = !!net && !net.code;   // solo = botlar bilan poyga
+    var coinsWon = !finished ? 10 : solo ? [50, 35, 25, 20][place - 1] || 20 : n > 1 ? [80, 50, 40, 30][place - 1] || 30 : 30;
     var xp = finished ? (n > 1 ? 60 - (place - 1) * 10 : 40) : 10;
     st = Y.state();
     if (st.vip) coinsWon *= 2;
-    st.coins += coinsWon; st.xp += xp; if (finished) { st.racesToday = (st.racesToday || 0) + 1; st.races = (st.races || 0) + 1; if (n > 1 && place === 1) st.wins = (st.wins || 0) + 1; }
-    if (finished && n === 1 && time && (!st.bestRace || time < st.bestRace)) st.bestRace = time;
+    st.coins += coinsWon; st.xp += xp; if (finished) { st.racesToday = (st.racesToday || 0) + 1; st.races = (st.races || 0) + 1; if (n > 1 && place === 1 && !solo) st.wins = (st.wins || 0) + 1; }
+    if (finished && (solo || n === 1) && time && (!st.bestRace || time < st.bestRace)) st.bestRace = time;
     Y.save(st); coins();
     $('rwCoins').textContent = '+' + coinsWon;
     $('rwXp').lastChild.textContent = '+' + xp + ' tajriba';
     var lv = Y.level(st.xp);
     $('rwLv').textContent = lv.lv + '-daraja'; $('rwLvNum').textContent = lv.cur + ' / ' + lv.need; $('rwLvBar').style.width = Math.round(lv.cur / lv.need * 100) + '%';
-    $('placeLine').textContent = n > 1 ? (place + '-o‘rin · ' + n + ' o‘yinchi' + (time ? ' · ' + time : '')) : (finished ? 'Vaqtingiz: ' + time + (st.bestRace === time ? ' · yangi rekord!' : '') : 'Poyga yakunlanmadi');
+    $('placeLine').textContent = n > 1 ? (place + '-o‘rin · ' + n + (solo ? ' mashina' : ' o‘yinchi') + (time ? ' · ' + time : '') + (solo && finished && st.bestRace === time ? ' · yangi rekord!' : '')) : (finished ? 'Vaqtingiz: ' + time + (st.bestRace === time ? ' · yangi rekord!' : '') : 'Poyga yakunlanmadi');
     resultText = n > 1 ? 'Yo‘lchi’da Toshkent Ring poygasida ' + place + '-o‘rinni oldim! 🏁' : 'Yo‘lchi’da Toshkent Ring: ' + (time || '3 aylana') + ' ⏱ Meni yengib ko‘r!';
     Y.haptic('heavy');
   }

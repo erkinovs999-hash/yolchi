@@ -41,6 +41,8 @@
     TASKS.forEach(function (t) { if (taskDone(st, t) && !taskClaimed(st, t)) n++; });
     return n;
   }
+  function recPending() { return achPending(Y.state());
+  }
 
   var CSS = [
     '.dim{position:absolute;inset:0;background:rgba(5,10,14,.66);pointer-events:auto}',
@@ -97,6 +99,11 @@
       }).join('');
       var bb = q('bonus'); if (bb) bb.onclick = claimBonus;
       o.root.querySelectorAll('[data-claim]').forEach(function (x) { x.onclick = function () { claimTask(x.dataset.claim); }; });
+    } else if (mode === 'records' && tab === 'ach') {
+      q('title').textContent = 'REYTING';
+      q('body').innerHTML = tabsHtml() + achHtml(st);
+      bindTabs();
+      o.root.querySelectorAll('[data-ach]').forEach(function (x) { x.onclick = function () { claimAch(x.dataset.ach); }; });
     } else if (mode === 'records' && tab !== 'me') {
       q('title').textContent = 'REYTING';
       q('body').innerHTML = tabsHtml() + boardHtml();
@@ -109,13 +116,40 @@
         [fmt(st.races), 'Tugatilgan poygalar'], [(st.streak || 0) + ' kun', 'Ketma-ket kirish'], [fmt((st.refs || []).length), 'Taklif qilingan do‘stlar']];
       q('title').textContent = 'REYTING';
       q('body').innerHTML = tabsHtml() + '<div class="grid">' + rec.map(function (r) { return '<div class="rec"><b>' + r[0] + '</b><span>' + r[1] + '</span></div>'; }).join('') + '</div>' +
-        '<p class="note">Bu sizning shaxsiy natijalaringiz — shu qurilmada saqlanadi.</p>';
+        '<p class="note">Bu sizning shaxsiy natijalaringiz — shu qurilmada saqlanadi. <button id="shareRes" style="color:var(--blue);font-weight:800;font-size:10.5px;pointer-events:auto">Do‘stlarga ulashish ↗</button></p>';
+      q('shareRes').onclick = function () { Y.share('Yo‘lchi’da ' + lv.lv + '-darajaman' + (st.bestRace ? ', poygadagi rekordim ' + st.bestRace : '') + '. Meni yengib ko‘r! 🏁', Y.uid ? 'ref_' + Y.uid : ''); };
       bindTabs();
     }
   }
   /* ---- umumiy reyting ---- */
   var tab = 'race', boards = null, lbErr = '';
-  var TABS = [['race', 'Poyga'], ['exam', 'Avtodrom'], ['xp', 'Daraja'], ['me', 'Mening rekordlarim']];
+  var TABS = [['race', 'Poyga'], ['exam', 'Avtodrom'], ['xp', 'Daraja'], ['me', 'Rekordlarim'], ['ach', 'Yutuqlar']];
+  /* ---- yutuqlar: bir martalik mukofotlar ---- */
+  var ACH = [
+    ['race1', 'Birinchi poyga', 'Bitta poygani oxirigacha haydang', 100, function (s) { return (s.races || 0) >= 1; }],
+    ['race25', 'Poygachi', '25 ta poygani tugating', 500, function (s) { return (s.races || 0) >= 25; }],
+    ['win1', 'G‘olib', 'Do‘stlar bilan poygada 1-o‘rinni oling', 300, function (s) { return (s.wins || 0) >= 1; }],
+    ['exam1', 'Imtihondan o‘tdi', 'Avtodromda imtihon yoki mashqni topshiring', 150, function (s) { return (s.examPassed || 0) >= 1; }],
+    ['exam10', 'Tajribali haydovchi', 'Avtodromda 10 marta topshiring', 500, function (s) { return (s.examPassed || 0) >= 10; }],
+    ['truck9', 'Dalnoboy', 'Yuk mashinasida 9 ta yulduzning hammasini yig‘ing', 600, function (s) { var n = 0; Object.keys(s.truck || {}).forEach(function (k) { n += s.truck[k].stars || 0; }); return n >= 9; }],
+    ['streak7', 'Sodiq o‘yinchi', '7 kun ketma-ket kiring', 400, function (s) { return (s.streak || 0) >= 7; }],
+    ['lv5', '5-daraja', '5-darajaga yeting', 300, function (s) { return Y.level(s.xp || 0).lv >= 5; }],
+    ['ref1', 'Do‘stona', 'Bitta do‘stingizni taklif qiling', 300, function (s) { return (s.refs || []).length >= 1; }]
+  ];
+  function achPending(st) { st.ach = st.ach || {}; return ACH.filter(function (a) { return a[4](st) && !st.ach[a[0]]; }).length; }
+  function achHtml(st) {
+    st.ach = st.ach || {};
+    return '<div class="rows ach">' + ACH.map(function (a) {
+      var done = a[4](st), got = st.ach[a[0]];
+      return '<div class="row' + (done && !got ? ' me' : '') + '" style="height:40px' + (!done ? ';opacity:.55' : '') + '"><i>' + (got ? '✓' : done ? '★' : '·') + '</i><span><b style="font-family:Manrope,sans-serif;font-size:12px">' + a[1] + '</b> <small style="color:var(--muted);font-weight:600">' + a[2] + '</small></span>' +
+        (got ? '<b style="color:var(--muted)">Olindi</b>' : done ? '<button class="act go" data-ach="' + a[0] + '" style="width:84px;height:28px;border-radius:9px;background:var(--lime);color:#0a1218;font-weight:800;font-size:11px">+' + a[3] + ' olish</button>' : '<b style="color:var(--coin)">+' + a[3] + '</b>') + '</div>';
+    }).join('') + '</div>';
+  }
+  function claimAch(id) {
+    var st = Y.state(), a = ACH.filter(function (x) { return x[0] === id; })[0]; st.ach = st.ach || {};
+    if (!a || !a[4](st) || st.ach[id]) return;
+    st.ach[id] = 1; st.coins = (st.coins || 0) + a[3]; Y.save(st); Y.haptic('heavy'); Y.toast('“' + a[1] + '” yutug‘i: +' + a[3] + ' tanga'); wallet(); render();
+  }
   function secs(t) { var m = /^(\d+):(\d+(?:\.\d+)?)$/.exec(t || ''); return m ? +m[1] * 60 + +m[2] : 0; }
   function clock(v) { var m = Math.floor(v / 60), s = v - m * 60; return m + ':' + (s < 10 ? '0' : '') + (Math.round(s * 10) / 10).toFixed(s % 1 ? 1 : 0); }
   function tabsHtml() { return '<div class="tabs">' + TABS.map(function (t) { return '<button data-tab="' + t[0] + '" class="' + (t[0] === tab ? 'on' : '') + '">' + t[1] + '</button>'; }).join('') + '</div>'; }
@@ -169,6 +203,6 @@
     Y.share('Yo‘lchi — Telegramdagi haydash o‘yini! Shu havola bilan kirsang, ikkalamizga 500 tangadan 🎁', Y.uid ? 'ref_' + Y.uid : '');
   }
 
-  Y.hub = { tasks: function () { open('tasks'); }, records: function () { open('records'); }, pending: pending, bonusClaimed: function () { return bonusInfo(Y.state()).claimed; }, referral: referral, invite: invite };
+  Y.hub = { tasks: function () { open('tasks'); }, records: function () { open('records'); }, pending: pending, recPending: recPending, bonusClaimed: function () { return bonusInfo(Y.state()).claimed; }, referral: referral, invite: invite };
   document.addEventListener('yolchi:wallet', render);
 })();

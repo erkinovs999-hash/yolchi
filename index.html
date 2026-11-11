@@ -67,7 +67,7 @@
     <a class="glass" href="/race/" style="position:relative;width:64px;height:60px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:700"><span data-ic="garage" data-c="#fff" data-s="20"></span>Garaj</a>
     <button class="glass" data-shop><span data-ic="bag" data-c="#fff" data-s="20"></span>Do‘kon<span class="sale">⭐</span></button>
     <button class="glass" id="tasksBtn"><span data-ic="target" data-c="#fff" data-s="20"></span>Vazifalar<span class="dot" id="taskDot" hidden></span></button>
-    <button class="glass" id="recBtn"><span data-ic="trophy" data-c="#fff" data-s="20"></span>Reyting</button>
+    <button class="glass" id="recBtn"><span data-ic="trophy" data-c="#fff" data-s="20"></span>Reyting<span class="dot" id="recDot" hidden></span></button>
   </nav>
 
   <div class="abs content brandrow"><span data-ic="logo" data-s="26"></span><span class="disp" style="font-size:15px;letter-spacing:.04em">YO‘LCHI</span></div>
@@ -115,7 +115,7 @@
 <script src="/ui/yolchi.js"></script>
 <script src="/ui/overlay.js"></script>
 <script src="/ui/shop.js?v=2"></script>
-<script src="/ui/hub.js?v=2"></script>
+<script src="/ui/hub.js?v=3"></script>
 <script>
 (function () {
   var Y = window.Yolchi, st = Y.state(), r = Y.racer();
@@ -142,7 +142,7 @@
     $('dailyBar').style.width = (n / 3 * 100) + '%'; $('dailyCount').textContent = n + '/3';
     var done = n >= 3;
     $('claim').hidden = !done || st.dailyClaimed || !!st.claims.race;
-    $('taskDot').hidden = !Y.hub.pending();
+    $('taskDot').hidden = !Y.hub.pending(); $('recDot').hidden = !Y.hub.recPending();
     var now = new Date(), end = new Date(now); end.setHours(24, 0, 0, 0);
     $('dailyLeft').textContent = st.dailyClaimed || st.claims.race ? 'olindi ✓' : Math.ceil((end - now) / 3600000) + ' soat';
   }
