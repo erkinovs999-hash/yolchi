@@ -16,8 +16,8 @@
   .screen{position:absolute;left:var(--L);right:var(--R);top:var(--T);bottom:var(--B)}
   .screen[hidden]{display:none}
   /* menyu */
-  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px}
-  .card{height:150px;padding:14px;border-radius:16px;display:flex;flex-direction:column;gap:6px;text-align:left;transition:transform .12s}
+  .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
+  .card{height:150px;padding:12px;border-radius:16px;display:flex;flex-direction:column;gap:6px;text-align:left;transition:transform .12s}
   .card:active{transform:scale(.97)}
   .card b{font-family:"Unbounded",sans-serif;font-size:15px;font-weight:800;margin-top:auto}
   .card small{font-size:10.5px;font-weight:600;color:var(--muted);line-height:1.35}
@@ -35,6 +35,8 @@
   .qleft{padding:14px;display:flex;flex-direction:column;gap:10px;min-height:0}
   .qleft .pic{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
   .qleft .pic svg{height:100%;max-height:150px;width:auto;filter:drop-shadow(0 8px 16px rgba(0,0,0,.4))}
+  .qleft .pic svg.scene{max-height:none;height:100%;max-width:100%;border-radius:12px;filter:none}
+  .qleft.scn{padding:10px;gap:8px}.qleft.scn .qtext{font-size:12.5px;line-height:1.3}
   .qtext{font-size:14.5px;font-weight:800;line-height:1.35}
   .qleft.nopic .qtext{font-size:17px;margin:auto 0}
   .opts{display:flex;flex-direction:column;gap:7px;min-height:0}
@@ -86,6 +88,7 @@
     <div class="cards">
       <button class="glass card main" data-go="exam"><span class="ico" data-ic="flag" data-c="#a78bfa" data-s="20"></span><b>Imtihon</b><small>20 ta savol · 20 daqiqa · 2 tagacha xato</small></button>
       <button class="glass card" data-go="practice"><span class="ico" data-ic="target" data-c="#a78bfa" data-s="20"></span><b>Mashq</b><small id="allCount">Barcha savollar, har biriga izoh bilan</small></button>
+      <button class="glass card" data-go="pics"><span class="ico" data-ic="wheel" data-c="#a78bfa" data-s="20"></span><b>Chorrahalar</b><small id="picCount">Rasmli savollar: kim birinchi o‘tadi?</small></button>
       <button class="glass card" data-go="signs"><span class="ico" data-ic="map" data-c="#a78bfa" data-s="20"></span><b>Belgilar</b><small id="signCount">Yo‘l belgilari katalogi</small></button>
       <button class="glass card" data-go="wrong"><span class="ico" data-ic="refresh" data-c="#a78bfa" data-s="20"></span><b>Xatolarim</b><small id="wrongCount">Xato qilgan savollaringiz</small></button>
     </div>
@@ -123,6 +126,7 @@
 <script src="/ui/yolchi.js"></script>
 <script src="/pdd/signs.js?v=1"></script>
 <script src="/pdd/questions.js?v=1"></script>
+<script src="/pdd/scenes.js?v=1"></script>
 <script>
 (function () {
   var Y = window.Yolchi; Y.hydrate(); Y.layout();
@@ -137,6 +141,8 @@
     BANK.push({ id: 's:' + s.id, q: 'Bu yo‘l belgisi nimani bildiradi?', svg: s.svg, ok: s.name, pool: same.concat(other).map(function (x) { return x.name; }), sameN: same.length, ex: '<b>' + s.name + '</b> — ' + CATS[s.cat].toLowerCase() + ' guruhiga kiradi.' });
   });
   RULES.forEach(function (r, i) { BANK.push({ id: 'r:' + i, q: r[0], ok: r[1], wrong: [r[2], r[3], r[4]], ex: r[5] }); });
+  var PICS = (window.PDD_SCENES || []).map(function (c) { return { id: 'p:' + c.id, q: c.q, svg: c.svg, ok: c.ok, wrong: c.wrong, ex: c.ex, scene: true }; });
+  BANK = BANK.concat(PICS);
   var byId = {}; BANK.forEach(function (b) { byId[b.id] = b; });
   function options(b) {
     var wrong = b.wrong || shuffle(b.pool.slice(0, b.sameN)).slice(0, 3);
@@ -151,6 +157,7 @@
     $('title').textContent = 'PDD TESTLARI'; ['progWrap', 'count', 'errs', 'timer'].forEach(function (x) { $(x).hidden = true; });
     $('coins').textContent = (st.coins || 0).toLocaleString('ru-RU');
     $('allCount').textContent = BANK.length + ' ta savol, har biriga izoh bilan';
+    $('picCount').textContent = PICS.length + ' ta rasmli savol: kim birinchi o‘tadi?';
     $('signCount').textContent = SIGNS.length + ' ta yo‘l belgisi, 5 guruh';
     $('wrongCount').textContent = p.wrong.length ? p.wrong.length + ' ta savolni qayta ishlang' : 'Hozircha xato yo‘q';
     $('sPass').textContent = p.pass; $('sBest').textContent = p.best ? p.best + ' / 20' : '—';
@@ -161,10 +168,11 @@
   function start(m) {
     var st = pdd();
     mode = m; errors = 0; right = 0; idx = 0;
-    if (m === 'exam') list = shuffle(BANK).slice(0, 20);
+    if (m === 'exam') list = shuffle(shuffle(PICS).slice(0, 6).concat(shuffle(BANK.filter(function (b) { return !b.scene; })).slice(0, 14)));   // haqiqiy imtihondagidek rasmli savollar ham tushadi
+    else if (m === 'pics') list = shuffle(PICS);
     else if (m === 'wrong') { list = shuffle(st.pdd.wrong.map(function (id) { return byId[id]; }).filter(Boolean)); if (!list.length) { Y.toast('Xato qilingan savollar yo‘q'); return; } }
     else { var seen = st.pdd.seen; list = shuffle(BANK.filter(function (b) { return seen.indexOf(b.id) < 0; })).concat(shuffle(BANK.filter(function (b) { return seen.indexOf(b.id) >= 0; }))); }
-    show('quiz'); $('title').textContent = { exam: 'IMTIHON', practice: 'MASHQ', wrong: 'XATOLARIM' }[m];
+    show('quiz'); $('title').textContent = { exam: 'IMTIHON', practice: 'MASHQ', wrong: 'XATOLARIM', pics: 'CHORRAHALAR' }[m];
     ['progWrap', 'count'].forEach(function (x) { $(x).hidden = false; }); $('errs').hidden = false; $('timer').hidden = m !== 'exam';
     clearInterval(tick);
     if (m === 'exam') { endAt = Date.now() + 20 * 60e3; tick = setInterval(clock, 500); clock(); }
@@ -175,7 +183,7 @@
     var b = list[idx]; answered = false;
     $('prog').style.width = (idx / list.length * 100) + '%'; $('count').textContent = (idx + 1) + ' / ' + list.length;
     $('errs').textContent = mode === 'exam' ? 'Xato: ' + errors + ' / 2' : 'Xato: ' + errors;
-    $('pic').innerHTML = b.svg || ''; $('pic').hidden = !b.svg; $('qleft').classList.toggle('nopic', !b.svg);
+    $('pic').innerHTML = b.svg || ''; $('pic').hidden = !b.svg; $('qleft').classList.toggle('nopic', !b.svg); $('qleft').classList.toggle('scn', !!b.scene);
     $('qtext').textContent = b.q; $('expl').hidden = true; $('quiz').classList.remove('ans');
     $('opts').innerHTML = '';
     options(b).forEach(function (o, i) {
