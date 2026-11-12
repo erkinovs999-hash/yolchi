@@ -109,6 +109,8 @@
     var coinsWon = !finished ? 10 : solo ? [50, 35, 25, 20][place - 1] || 20 : n > 1 ? [80, 50, 40, 30][place - 1] || 30 : 30;
     var xp = finished ? (n > 1 ? 60 - (place - 1) * 10 : 40) : 10;
     st = Y.state();
+    var meSt = net && net.states && net.states.filter(function (x) { return x.id === net.id; })[0], driftPts = Math.round(meSt && meSt.score || 0), driftCoins = finished ? Math.min(40, Math.floor(driftPts / 400) * 5) : 0;
+    coinsWon += driftCoins;
     if (st.vip) coinsWon *= 2;
     st.coins += coinsWon; st.xp += xp; if (finished) { st.racesToday = (st.racesToday || 0) + 1; st.races = (st.races || 0) + 1; if (n > 1 && place === 1 && !solo) st.wins = (st.wins || 0) + 1; }
     if (finished && (solo || n === 1) && time && (!bestOf(st) || time < bestOf(st))) setBest(st, time);
@@ -119,6 +121,7 @@
     $('rwLv').textContent = lv.lv + '-daraja'; $('rwLvNum').textContent = lv.cur + ' / ' + lv.need; $('rwLvBar').style.width = Math.round(lv.cur / lv.need * 100) + '%';
     $('placeLine').textContent = n > 1 ? (place + '-o‘rin · ' + n + (solo ? ' mashina' : ' o‘yinchi') + (time ? ' · ' + time : '') + (solo && finished && bestOf(st) === time ? ' · yangi rekord!' : '')) : (finished ? 'Vaqtingiz: ' + time + (bestOf(st) === time ? ' · yangi rekord!' : '') : 'Poyga yakunlanmadi');
     resultText = n > 1 ? 'Yo‘lchi’da ' + TR.name + ' poygasida ' + place + '-o‘rinni oldim! 🏁' : 'Yo‘lchi’da ' + TR.name + ': ' + (time || '3 aylana') + ' ⏱ Meni yengib ko‘r!';
+    if (driftPts > 50) $('placeLine').textContent += ' · drift ' + driftPts + (driftCoins ? ' (+' + driftCoins + ' tanga)' : '');
     Y.haptic('heavy');
   }
   new MutationObserver(function () {

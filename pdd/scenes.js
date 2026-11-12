@@ -34,7 +34,7 @@
     return '<g transform="translate(' + r1(p[0]) + ',' + r1(p[1]) + ')"><rect x="-6" y="-14" width="12" height="28" rx="3.5" fill="#12161a" stroke="#fff" stroke-opacity=".5" stroke-width=".8"/><circle cy="-8.5" r="3.4" fill="' + on('#ff3b47', 'red') + '"/><circle r="3.4" fill="' + on('#ffcf33', 'yellow') + '"/><circle cy="8.5" r="3.4" fill="' + on('#3be07a', 'green') + '"/></g>';
   }
   function vehicle(v) {
-    var tram = v.kind === 'tram', side = tram ? 0 : LN, len = tram ? 58 : 34, w = tram ? 19 : 19, p = inPos(v.from, 14 + len / 2, side), col = COL[tram ? 'tram' : v.c];
+    var tram = v.kind === 'tram', side = tram ? 0 : LN, len = tram ? 58 : 34, w = tram ? 19 : 19, p = inPos(v.from, 14 + len / 2, side), col = COL[tram ? (v.c || 'tram') : v.c];
     var g = '<g transform="translate(' + r1(p[0]) + ',' + r1(p[1]) + ') rotate(' + ang(v.from) + ')">';
     g += '<rect x="' + (-w / 2) + '" y="' + (-len / 2) + '" width="' + w + '" height="' + len + '" rx="' + (tram ? 4 : 5.5) + '" fill="' + col + '" stroke="#0d1317" stroke-width="1.4"/>';
     if (tram) g += '<rect x="-7" y="' + (-len / 2 + 3) + '" width="14" height="6" rx="1.5" fill="#1d2a33"/><rect x="-9.5" y="-6" width="19" height="5" fill="#e02d3c"/><line y1="-2" y2="14" stroke="#1d2a33" stroke-width="1.4"/><text y="24" font-family="Arial" font-size="7" font-weight="700" fill="#1d2a33" text-anchor="middle">T</text>';
@@ -45,7 +45,7 @@
     return g + '</g>';
   }
   function arrow(v) {
-    var tram = v.kind === 'tram', side = tram ? 0 : LN, col = COL[tram ? 'tram' : v.c], vert = D[v.from][0] === 0;
+    var tram = v.kind === 'tram', side = tram ? 0 : LN, col = COL[tram ? (v.c || 'tram') : v.c], vert = D[v.from][0] === 0;
     var s = inPos(v.from, 10, side), e1 = inPos(v.from, 0, side), d = D[v.to], rr = [-d[1], d[0]], k = tram ? 0 : LN;
     var e2 = [C + d[0] * HW + rr[0] * k, C + d[1] * HW + rr[1] * k], end = [C + d[0] * (HW + 34) + rr[0] * k, C + d[1] * (HW + 34) + rr[1] * k];
     var straight = D[v.from][0] === -d[0] && D[v.from][1] === -d[1];
@@ -102,7 +102,27 @@
     { id: 'main-turn', o: { mainPath: 'SE', signs: { S: 'main', E: 'main', N: 'yield', W: 'yield' }, v: [{ from: 'S', to: 'N', c: 'red' }, { from: 'E', to: 'S', c: 'blue' }] }, q: 'Asosiy yo‘l yo‘nalishini o‘zgartiradi (sariq bilan ko‘rsatilgan). ' + FIRST, ok: B, wrong: [R + ' — chunki u to‘g‘riga ketmoqda', SAME, ANY],
       ex: 'Ikkala avtomobil ham asosiy yo‘lda — ular o‘zaro <b>o‘ng qo‘l qoidasi</b> bo‘yicha o‘tadi. Ko‘k qizilning o‘ng tomonida, demak ko‘k birinchi.' },
     { id: 'ped-turn', o: { zebra: 'E', ped: 'E', v: [{ from: 'S', to: 'E', c: 'red' }] }, q: 'Qizil avtomobil o‘ngga burilmoqda. Burilayotgan yo‘lning qatnov qismidan piyoda o‘tmoqda. Haydovchi nima qilishi kerak?', ok: 'Piyodaga yo‘l berishi kerak', wrong: ['Ovozli signal berib o‘tib ketishi kerak', 'Piyoda to‘xtashini kutmasdan aylanib o‘tishi kerak', 'Tezlikni oshirib piyodadan oldin o‘tib olishi kerak'],
-      ex: 'O‘ngga yoki chapga burilayotgan haydovchi o‘zi burilayotgan yo‘lning qatnov qismini kesib o‘tayotgan <b>piyodalarga yo‘l beradi</b>.' }
+      ex: 'O‘ngga yoki chapga burilayotgan haydovchi o‘zi burilayotgan yo‘lning qatnov qismini kesib o‘tayotgan <b>piyodalarga yo‘l beradi</b>.' },
+    { id: 'stop-main', o: { signs: { W: 'stop', E: 'yield', N: 'main', S: 'main' }, v: [{ from: 'W', to: 'E', c: 'red' }, { from: 'N', to: 'E', c: 'blue' }] }, q: 'Qizil avtomobil «STOP» belgisi oldida turibdi. ' + FIRST, ok: B, wrong: [R, SAME, ANY],
+      ex: '«To‘xtamasdan harakatlanish taqiqlanadi» belgisi oldida <b>albatta to‘xtash</b> va asosiy yo‘ldagi transportga yo‘l berish kerak. Ko‘k asosiy yo‘lda — u birinchi.' },
+    { id: 'sec-both', o: { signs: MAIN_NS, v: [{ from: 'E', to: 'W', c: 'red' }, { from: 'W', to: 'N', c: 'blue' }] }, q: 'Ikkala avtomobil ham ikkinchi darajali yo‘lda, asosiy yo‘l bo‘sh. ' + FIRST, ok: R, wrong: [B, SAME, ANY],
+      ex: 'Ikkalasi ham teng sharoitda (ikkinchi darajali yo‘l). Ko‘k chapga burilmoqda — qarshidan to‘g‘riga kelayotgan qizilga yo‘l beradi.' },
+    { id: 'tram-two', o: { rails: 'WES', v: [{ from: 'W', to: 'E', kind: 'tram' }, { from: 'E', to: 'S', kind: 'tram', c: 'red' }] }, q: 'Teng ahamiyatli chorrahada ikki tramvay. Qizil tramvay chapga burilmoqda. Qaysi biri birinchi o‘tadi?', ok: 'Sariq tramvay', wrong: ['Qizil tramvay', SAME, ANY],
+      ex: 'Tramvaylar o‘zaro umumiy qoida bo‘yicha o‘tadi: chapga burilayotgan tramvay qarshidan <b>to‘g‘riga</b> kelayotganiga yo‘l beradi.' },
+    { id: 'green-amb', o: { light: { NS: 'green', EW: 'red' }, v: [{ from: 'S', to: 'N', c: 'blue' }, { from: 'W', to: 'E', c: 'white', kind: 'amb' }] }, q: 'Ko‘k avtomobilga yashil signal yonmoqda. Chapdan tez yordam ko‘k mayoq va sirena bilan kelmoqda. ' + FIRST, ok: A, wrong: [B + ' — chunki unga yashil yonmoqda', SAME, ANY],
+      ex: 'Maxsus signallari yoqilgan transport svetoforning taqiqlovchi signalida ham o‘tishi mumkin. Yashil yonsa ham unga <b>yo‘l berish shart</b>.' },
+    { id: 'main-turn2', o: { mainPath: 'WN', signs: { W: 'main', N: 'main', E: 'yield', S: 'yield' }, v: [{ from: 'W', to: 'E', c: 'red' }, { from: 'N', to: 'S', c: 'blue' }] }, q: 'Asosiy yo‘l yo‘nalishini o‘zgartiradi (sariq bilan ko‘rsatilgan). Ikkalasi ham asosiy yo‘ldan kelmoqda. ' + FIRST, ok: R, wrong: [B, SAME, ANY],
+      ex: 'Ikkalasi ham asosiy yo‘lda — o‘zaro <b>o‘ng qo‘l qoidasi</b> ishlaydi. Qizil ko‘kning o‘ng tomonida, demak qizil birinchi.' },
+    { id: 'main-turn-sec', o: { mainPath: 'SE', signs: { S: 'main', E: 'main', N: 'yield', W: 'yield' }, v: [{ from: 'W', to: 'E', c: 'green' }, { from: 'S', to: 'E', c: 'red' }] }, q: 'Asosiy yo‘l o‘ngga buriladi (sariq bilan ko‘rsatilgan). Ikkala avtomobil bitta yo‘lga chiqmoqda. ' + FIRST, ok: R, wrong: [G + ' — chunki u to‘g‘riga ketmoqda', SAME, ANY],
+      ex: 'Qizil asosiy yo‘l bo‘ylab harakatlanmoqda, yashil esa «Yo‘l bering» belgisi ostida — yashil kutadi.' },
+    { id: 't-left', o: { arms: 'ESW', v: [{ from: 'W', to: 'E', c: 'red' }, { from: 'E', to: 'S', c: 'blue' }] }, q: 'Teng ahamiyatli T-simon chorraha. Ko‘k avtomobil chapga burilmoqda. ' + FIRST, ok: R, wrong: [B, SAME, ANY],
+      ex: 'Chapga burilayotgan ko‘k avtomobil qarshidan to‘g‘riga kelayotgan qizilga yo‘l beradi.' },
+    { id: 'flash-eq', o: { light: 'flash', v: [{ from: 'S', to: 'N', c: 'red' }, { from: 'W', to: 'E', c: 'blue' }] }, q: 'Svetofor sariq miltillovchi rejimda, ustuvorlik belgilari yo‘q. ' + FIRST, ok: R, wrong: [B, SAME, ANY],
+      ex: 'Sariq miltillovchi signal va belgilar yo‘q — chorraha teng ahamiyatli. Qizil ko‘kning <b>o‘ng tomonida</b>, shuning uchun ko‘k yo‘l beradi.' },
+    { id: 'ped-left', o: { zebra: 'W', ped: 'W', v: [{ from: 'S', to: 'W', c: 'red' }, { from: 'N', to: 'S', c: 'blue' }] }, q: 'Qizil avtomobil chapga burilmoqda. U kimlarga yo‘l berishi kerak?', ok: 'Ko‘k avtomobilga ham, piyodaga ham', wrong: ['Faqat ko‘k avtomobilga', 'Faqat piyodaga', 'Hech kimga — u chorrahaga birinchi kirgan'],
+      ex: 'Chapga burilganda avval qarshidan kelayotgan transportga, so‘ng burilayotgan yo‘lni kesib o‘tayotgan piyodaga yo‘l beriladi.' },
+    { id: 'same-exit', o: { v: [{ from: 'S', to: 'E', c: 'red' }, { from: 'N', to: 'E', c: 'blue' }] }, q: 'Teng ahamiyatli chorraha. Ikkala avtomobil ham bitta yo‘lga burilmoqda. ' + FIRST, ok: R, wrong: [B, SAME, ANY],
+      ex: 'Ko‘k chapga burilmoqda — qarshidan <b>o‘ngga</b> burilayotgan qizilga ham yo‘l berishi kerak.' }
   ];
   window.PDD_SCENES = Q.map(function (x) { return { id: x.id, q: x.q, svg: draw(x.o), ok: x.ok, wrong: x.wrong, ex: x.ex }; });
 })();

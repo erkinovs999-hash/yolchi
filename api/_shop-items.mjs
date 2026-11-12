@@ -5,6 +5,10 @@ export const ITEMS = {
   coins1: { stars: 15, coins: 1000, title: '1 000 tanga', description: 'Yo‘lchi tangalari: bo‘yoqlar va yangiliklar uchun.' },
   coins2: { stars: 75, coins: 6000, title: '6 000 tanga', description: '5 000 tanga + 20% bonus.' },
   coins3: { stars: 150, coins: 15000, title: '15 000 tanga', description: '10 000 tanga + 50% bonus.' },
+  tneon: { stars: 59, title: 'RGB neon', description: 'Mashina ostida rangi almashib turadigan neon yorug‘lik. Poygada raqiblar ham ko‘radi.' },
+  tspoiler: { stars: 39, title: 'Sport spoyler', description: 'Barcha mashinalaringiz uchun orqa sport qanoti.' },
+  tflame: { stars: 29, title: 'Ko‘k nitro alanga', description: 'Nitro yoqilganda ko‘k alanga chiqadi.' },
+  tpack: { stars: 99, title: 'Tyuning to‘plami', description: 'RGB neon + sport spoyler + ko‘k nitro alanga — birga arzonroq.' },
   vip: { stars: 249, title: 'Yo‘lchi VIP', description: 'Barcha mukofotlar ×2, 3 ta maxsus bo‘yoq va VIP belgisi. Bir marta to‘lanadi — umrbod.' },
 };
 

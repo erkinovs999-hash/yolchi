@@ -10,7 +10,7 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="/tg.js?v=6"></script>
 <link rel="stylesheet" href="/ui/yolchi.css">
-<link rel="stylesheet" href="/race/yolchi-race.css?v=2">
+<link rel="stylesheet" href="/race/yolchi-race.css?v=3">
 </head>
 <body data-phase="menu" data-step="garage">
 <canvas id="scene" tabindex="0" aria-label="Poyga maydoni"></canvas>
@@ -99,7 +99,7 @@
       </div>
       <div class="abs glass modepanel step-mode tab-solo">
         <div class="mysel"><img alt="" id="mySelImg2"><div><span class="lbl">Sizning mashinangiz</span><b id="mySelName2">Gentra</b><span class="muted" id="mySelSub2"></span></div></div>
-        <p class="muted" style="font-size:12px;font-weight:600;line-height:1.5;margin:0"><span id="soloTrk">Toshkent Ring</span>’da 3 ta raqib bilan 3 aylana. O‘rningizga qarab tanga oling, vaqtingiz reytingga yoziladi.</p>
+        <p class="muted" style="font-size:12px;font-weight:600;line-height:1.5;margin:0"><span id="soloTrk">Toshkent Ring</span>’da 3 ta raqib bilan 3 aylana. O‘rningizga qarab tanga oling. Eng yaxshi poygangiz «arvoh» mashina bo‘lib yoningizda yuradi. Burilishda tormoz + rul — drift, u nitroni to‘ldiradi.</p>
         <button class="btn primary big" id="solo"><span data-ic="play" data-c="#0a1218" data-s="16"></span>Botlar bilan poyga</button>
       </div>
     </section>
@@ -153,10 +153,12 @@
     <div class="abs speedo">
       <div class="sp"><strong id="speed" class="disp">0</strong><span class="sc"><b id="gear">N</b><small>km/soat</small></span></div>
       <div class="bar rev"><i id="revs"></i></div>
+      <div class="bar nit" title="Nitro"><i id="nitro" style="width:100%"></i></div>
       <small id="driving-status">STARTNI KUTING</small>
       <small id="current-car" hidden>GENTRA</small>
     </div>
-    <div class="abs keys"><kbd>W A S D</kbd> haydash · <kbd>SPACE</kbd> tormoz · <kbd>C</kbd> kamera · <kbd>L</kbd> faralar</div>
+    <div class="abs keys"><kbd>W A S D</kbd> haydash · <kbd>SPACE</kbd> tormoz/drift · <kbd>SHIFT</kbd> nitro · <kbd>C</kbd> kamera · <kbd>L</kbd> faralar</div>
+    <div id="drift" class="abs drift disp"></div>
     <div id="countdown" class="abs countdown disp" aria-live="polite"></div>
     <div id="pause-notice" class="abs glass pausebox" hidden><b class="disp">PAUZA</b><small class="muted">Mezbon o‘yin oynasiga qaytishi kutilmoqda.</small></div>
   </section>
@@ -166,6 +168,7 @@
       <button data-drive="left" aria-label="Chapga"><span data-ic="left" data-c="#fff" data-s="28"></span></button>
       <button data-drive="right" aria-label="O‘ngga"><span data-ic="right" data-c="#fff" data-s="28"></span></button>
     </div>
+    <div class="nwrap"><button data-drive="nitro" class="nitro" aria-label="Nitro"><b class="disp">NITRO</b></button></div>
     <div class="pedals">
       <button data-drive="reverse" class="rev" aria-label="Orqaga"><b class="disp">R</b></button>
       <button data-drive="brake" class="brake" aria-label="Tormoz"><span data-ic="brake" data-c="#fff" data-s="30"></span></button>
@@ -215,8 +218,8 @@
 <div id="fatal" class="fatal" hidden><div><b>O‘yin yuklanmadi.</b><p>Sahifani yangilab, qayta urinib ko‘ring.</p><a href="./" class="btn primary" style="height:44px;padding:0 18px">Qayta yuklash</a></div></div>
 
 <script src="/ui/yolchi.js"></script>
-<script src="/race/yolchi-race.js?v=5"></script>
-<script type="module" src="/race/race.js?v=real1"></script>
+<script src="/race/yolchi-race.js?v=6"></script>
+<script type="module" src="/race/race.js?v=fx1"></script>
 <noscript>O‘ynash uchun brauzerda JavaScript’ni yoqing.</noscript>
 </body>
 </html>

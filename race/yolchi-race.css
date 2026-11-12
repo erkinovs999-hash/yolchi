@@ -215,3 +215,8 @@ body[data-phase=menu] .racetoast,body[data-phase=lobby] .racetoast{top:var(--row
 .fatal p{color:var(--muted);font-size:13px}
 
 .trknav{display:flex;align-items:center;gap:8px}.trknav>div{flex:1;min-width:0;text-align:center}.trkbtn{flex:none;width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:var(--lime);font-size:22px;line-height:1;font-weight:800;cursor:pointer;touch-action:manipulation}.trkbtn:active{transform:scale(.94)}
+
+.bar.nit{width:120px;height:5px;background:rgba(0,0,0,.35)}.bar.nit>i{background:linear-gradient(90deg,#38bdf8,#a78bfa);transition:width .12s}.bar.nit.on{box-shadow:0 0 10px #7dd3fc}
+.drift{left:50%;top:26%;transform:translateX(-50%);font-size:20px;font-weight:800;color:#ffd35a;text-shadow:0 2px 0 rgba(0,0,0,.45);letter-spacing:.04em;pointer-events:none}
+.touch-controls .nwrap{right:var(--R);bottom:calc(var(--B) + 106px)}
+.touch-controls .nitro{width:70px;height:40px;border-radius:14px;font-size:10px;letter-spacing:.06em;color:#fff;background:linear-gradient(135deg,rgba(56,189,248,.55),rgba(167,139,250,.55));border-color:rgba(160,210,255,.7)}

@@ -9,6 +9,7 @@
     coins3: { stars: 150, coins: 15000, title: '15 000', sub: 'tanga', badge: '+50%' },
     vip: { stars: 249 }
   };
+  var TUNE = [['tneon', 'RGB neon', 59, ['neon']], ['tspoiler', 'Spoyler', 39, ['spoiler']], ['tflame', 'Ko‘k nitro', 29, ['flame']], ['tpack', 'Hammasi', 99, ['neon', 'spoiler', 'flame']]];
   var PAINTS = [['sun', 'Quyosh', '#ff7a3c'], ['ice', 'Muz', '#7f9cff'], ['emerald', 'Zumrad', '#12a37f']];
   var PAINT_PRICE = 2500;
   var tg = window.Telegram && Telegram.WebApp, init = tg && tg.initData;
@@ -21,21 +22,23 @@
       .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Server javobi noto‘g‘ri' }; }); });
   }
   function grant(list, quiet) {
-    var st = Y.state(); st.claimed = st.claimed || []; var add = 0, vipNew = false;
+    var st = Y.state(); st.claimed = st.claimed || []; var add = 0, vipNew = false, tuneNew = false;
     (list || []).forEach(function (p) {
       if (p.item === 'vip' && !st.vip) { st.vip = true; vipNew = true; }
+      TUNE.forEach(function (t) { if (t[0] === p.item) { st.tune = st.tune || {}; t[3].forEach(function (k) { if (!st.tune[k]) { st.tune[k] = true; tuneNew = true; } }); } });
       if (st.claimed.indexOf(p.id) >= 0) return;
       st.claimed.push(p.id);
       var it = ITEMS[p.item]; if (it && it.coins) add += it.coins;
     });
     st.coins = (st.coins || 0) + add; Y.save(st);
-    if (!quiet || add || vipNew) {
-      if (vipNew) Y.toast('VIP yoqildi! Mukofotlar ×2, maxsus bo‘yoqlar ochildi');
+    if (!quiet || add || vipNew || tuneNew) {
+      if (tuneNew) Y.toast('Tyuning o‘rnatildi — poygada ko‘rinadi');
+      else if (vipNew) Y.toast('VIP yoqildi! Mukofotlar ×2, maxsus bo‘yoqlar ochildi');
       else if (add) Y.toast('+' + add.toLocaleString('ru-RU') + ' tanga qo‘shildi');
       else if (!quiet) Y.toast('Barcha xaridlar joyida');
     }
-    if (add || vipNew) { Y.haptic && Y.haptic('heavy'); document.dispatchEvent(new CustomEvent('yolchi:wallet')); }
-    return add || vipNew;
+    if (add || vipNew || tuneNew) { Y.haptic && Y.haptic('heavy'); document.dispatchEvent(new CustomEvent('yolchi:wallet')); }
+    return add || vipNew || tuneNew;
   }
   function sync(quiet) {
     if (!init) { quiet || Y.toast('Xaridlar faqat Telegram ichida tiklanadi'); return Promise.resolve(false); }
@@ -95,6 +98,9 @@
     '.paint button.on{background:var(--lime);color:#0a1218}',
     '.ft{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:9.5px;font-weight:600;color:var(--muted)}.ft .grow{flex:1}',
     '.ft button{font-size:10.5px;font-weight:800;color:var(--blue)}',
+    '.tune{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}',
+    '.tn{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10)}',
+    '.tn span{flex:1;font-size:11px;font-weight:800;white-space:nowrap}.tn .buy{margin:0;width:auto;padding:0 8px;height:26px;font-size:11.5px}',
     '.lbl2{font-size:9px;font-weight:800;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:7px}'
   ].join('');
   function build() {
@@ -107,6 +113,7 @@
       ['coins1', 'coins2', 'coins3'].map(function (k) { var it = ITEMS[k]; return '<div class="pack">' + (it.badge ? '<span class="tag">' + it.badge + '</span>' : '') + Y.icon('coin', null, 26) + '<b>' + it.title + '</b><small>' + it.sub + '</small><button class="buy" data-buy="' + k + '">' + star(14) + it.stars + '</button></div>'; }).join('') +
       '</div><div class="vip"><div class="tx"><b>YO‘LCHI VIP</b><p>Barcha mukofotlar ×2 · 3 ta maxsus bo‘yoq · VIP belgisi. Bir marta to‘lanadi — umrbod.</p></div><button class="buy" data-buy="vip" id="vipBtn">' + star(16, true) + ITEMS.vip.stars + '</button></div></div>' +
       '<div><div class="lbl2">Maxsus bo‘yoqlar</div><div class="paints" id="paints"></div></div></div>' +
+      '<div class="lbl2" style="margin:10px 0 0">Tyuning · poygada ko‘rinadi</div><div class="tune" id="tune"></div>' +
       '<div class="ft"><span>To‘lov Telegram Stars orqali. Muammo bo‘lsa — botga /paysupport.</span><span class="grow"></span><button id="restore">Xaridlarni tiklash</button></div></div>';
     o.icons();
     q = function (id) { return o.root.getElementById(id); };
@@ -121,6 +128,9 @@
     q('coins').textContent = (st.coins || 0).toLocaleString('ru-RU');
     q('vipb').hidden = !st.vip;
     q('vipBtn').disabled = !!st.vip; q('vipBtn').innerHTML = st.vip ? 'Sizda bor ✓' : star(16, true) + ITEMS.vip.stars;
+    var tn = st.tune || {};
+    q('tune').innerHTML = TUNE.map(function (t) { var have = t[3].every(function (k) { return tn[k]; }); return '<div class="tn"><span>' + t[1] + '</span><button class="buy" data-tune="' + t[0] + '"' + (have ? ' disabled' : '') + '>' + (have ? '✓' : star(13) + t[2]) + '</button></div>'; }).join('');
+    q('tune').querySelectorAll('[data-tune]').forEach(function (b) { b.onclick = function () { Y.haptic && Y.haptic(); buy(b.dataset.tune, b); }; });
     q('paints').innerHTML = PAINTS.map(function (p) {
       var have = owned(p[0]), on = cur === p[2];
       return '<div class="paint"><i style="background:' + p[2] + '"></i><span>' + p[1] + '</span><button data-paint="' + p[0] + '" class="' + (on ? 'on' : '') + '">' +
