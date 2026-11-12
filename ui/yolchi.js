@@ -119,9 +119,13 @@
   var CARS = {
     gentra: { name: 'Gentra', sub: '1.5 · mexanika', cls: 'Sedan · 1-sinf', speed: 187, acc: 5.1, brake: 12.5, steer: 0.53 },
     cobalt: { name: 'Cobalt', sub: '2014 · LTZ', cls: 'Sedan · 1-sinf', speed: 176, acc: 4.9, brake: 12.4, steer: 0.53 },
-    malibu: { name: 'Malibu', sub: '2019 · Premier', cls: 'Sedan · 2-sinf', speed: 220, acc: 6.8, brake: 13.2, steer: 0.49 }
+    malibu: { name: 'Malibu', sub: '2019 · Premier', cls: 'Sedan · 2-sinf', speed: 220, acc: 6.8, brake: 13.2, steer: 0.49 },
+    sport: { k: 1, price: 3000, name: 'Sport', sub: 'Kupe · turbo', cls: 'Kupe · 2-sinf', speed: 209, acc: 6.4, brake: 13.4, steer: 0.52 },
+    pikap: { k: 1, price: 4000, name: 'Pikap', sub: '4x4 · dizel', cls: 'Pikap · 1-sinf', speed: 180, acc: 5.6, brake: 12.2, steer: 0.5 },
+    jip: { k: 1, price: 5000, name: 'Jip', sub: 'Lyuks · 3.0', cls: 'Yo‘ltanlamas · 2-sinf', speed: 198, acc: 6, brake: 12.8, steer: 0.5 },
+    bolid: { k: 1, price: 9000, name: 'Bolid', sub: 'Formula · poyga', cls: 'Poyga · 3-sinf', speed: 238, acc: 7.6, brake: 14.5, steer: 0.47 }
   };
-  function carImage(car, color) { return '/ui/cars/' + car + '-' + String(color || '#e5e7eb').replace('#', '').toLowerCase() + '.webp'; }
+  function carImage(car, color) { if (CARS[car] && CARS[car].k) return '/ui/cars/k-' + car + '.png'; return '/ui/cars/' + car + '-' + String(color || '#e5e7eb').replace('#', '').toLowerCase() + '.webp'; }
 
   /* ---------- Yordamchilar ---------- */
   var toastEl, toastT;

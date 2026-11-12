@@ -38,6 +38,30 @@
   document.querySelectorAll('.tabs3 [data-soon], .car-lock[data-soon]').forEach(function (b) { b.remove(); });
   document.querySelectorAll('[data-soon]').forEach(function (b) { b.addEventListener('click', function () { Y.toast('Tez kunda — do‘konda ochiladi'); }); });
 
+  /* ---------- Yangi mashinalar: tangaga ochiladi ---------- */
+  var ownsCar = function (k) { var c = Y.cars[k]; return !c || !c.price || (Y.state().cars || []).indexOf(k) >= 0; };
+  var armed = null;
+  function lockCars() {
+    document.querySelectorAll('.car-choice.kcar').forEach(function (b) {
+      var k = b.dataset.car, own = ownsCar(k), pr = b.querySelector('.kprice');
+      b.classList.toggle('klock', !own);
+      if (!own && !pr) { pr = document.createElement('span'); pr.className = 'price kprice'; pr.innerHTML = Y.icon('coin', null, 13) + Y.cars[k].price.toLocaleString('ru-RU'); b.appendChild(pr); }
+      if (own && pr) pr.remove();
+    });
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.car-choice.kcar'); if (!b || ownsCar(b.dataset.car)) return;
+    e.stopImmediatePropagation(); e.preventDefault();
+    var k = b.dataset.car, c = Y.cars[k], s = Y.state();
+    if ((s.coins || 0) < c.price) { Y.toast(c.name + ' — ' + c.price.toLocaleString('ru-RU') + ' tanga. Tanga yetmaydi — do‘konga o‘tilmoqda'); setTimeout(function () { location.href = '/#shop'; }, 900); return; }
+    if (armed !== k) { armed = k; Y.toast(c.name + 'ni ' + c.price.toLocaleString('ru-RU') + ' tangaga olish uchun yana bir marta bosing'); return; }
+    armed = null; s.coins -= c.price; s.cars = (s.cars || []).concat([k]); Y.save(s); st = s; Y.haptic('heavy'); Y.toast(c.name + ' garajingizga qo‘shildi!'); lockCars();
+    document.dispatchEvent(new CustomEvent('yolchi:wallet')); b.click();
+  }, true);
+  lockCars();
+  // Saqlangan mashina hali ochilmagan bo'lsa — Gentraga qaytamiz
+  if (!ownsCar(cur.car)) { try { var rr = JSON.parse(localStorage.getItem('bts-racer') || '{}'); rr.car = 'gentra'; localStorage.setItem('bts-racer', JSON.stringify(rr)); } catch (e) {} cur.car = 'gentra'; }
+
   /* ---------- Mashina ma'lumotlari va rasmlar ---------- */
   function paintCar() {
     var c = Y.cars[cur.car] || Y.cars.gentra;
