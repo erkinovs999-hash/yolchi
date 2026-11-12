@@ -1,0 +1,63 @@
+{
+ "damas": {
+  "length": 3.495,
+  "front": -1,
+  "tireMat": "^\\.001$",
+  "tire": "^\\.001$",
+  "brake": "^material_(2|12|9)$",
+  "head": "^material_13$",
+  "paint": "^material_3$"
+ },
+ "nexia": {
+  "length": 4.482,
+  "paint": "Car_Paint",
+  "glass": "Black_Opaque__Glass",
+  "tire": "TireProcedural",
+  "brake": "redglass",
+  "tris": 150000,
+  "error": 0.0025,
+  "strip": 1
+ },
+ "onix": {
+  "length": 4.474,
+  "front": -1,
+  "paint": "^primary$",
+  "glass": "^glass$|onix_90_8",
+  "tire": "^wheel\\.(1|005|009|013)$",
+  "brake": "right_rear_light|group_6",
+  "head": "right_front_light",
+  "tris": 150000,
+  "error": 0.0025,
+  "strip": 1
+ },
+ "tracker": {
+  "length": 4.27,
+  "strip": 1,
+  "error": 0.003,
+  "tris": 130000,
+  "paint": "^ID986$",
+  "tire": "^ID157$",
+  "brake": "^ID(1554|573|1827)$"
+ },
+ "equinox": {
+  "length": 4.652,
+  "strip": 1,
+  "error": 0.0022,
+  "tris": 150000,
+  "paint": "paint-glossy_primary",
+  "tire": "^tread$",
+  "brake": "glass-colored_red|metal_red",
+  "head": "glass-clear_headlights"
+ },
+ "tahoe": {
+  "length": 5.351,
+  "tireMat": "tyrewall",
+  "strip": 1,
+  "error": 0.003,
+  "tris": 130000,
+  "paint": "PAINT_1",
+  "tire": "tyrewall",
+  "brake": "taillight|brakelits|dar_tailight",
+  "head": "hallogenheadlight"
+ }
+}

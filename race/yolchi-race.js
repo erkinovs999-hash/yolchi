@@ -39,13 +39,24 @@
   document.querySelectorAll('[data-soon]').forEach(function (b) { b.addEventListener('click', function () { Y.toast('Tez kunda — do‘konda ochiladi'); }); });
 
   /* ---------- Yangi mashinalar: tangaga ochiladi ---------- */
-  var ownsCar = function (k) { var c = Y.cars[k]; return !c || !c.price || (Y.state().cars || []).indexOf(k) >= 0; };
+  var ownsCar = function (k) { var c = Y.cars[k]; return !c || !(c.price || c.win) || (Y.state().cars || []).indexOf(k) >= 0; };
+  // Sovrinli mashinalar: tangaga sotilmaydi, poygada yutib olinadi
+  var WIN = {
+    firsts5: { label: '5 g‘alaba', text: 'Poygada 5 marta 1-o‘rinni oling', prog: function (s) { return [Math.min(5, s.firsts || 0), 5]; } },
+    tracks: { label: '5 trassa', text: 'Barcha 5 trassada 1-o‘rinni oling', prog: function (s) { return [Object.keys(s.trkWin || {}).length, 5]; } },
+    firsts20: { label: '20 g‘alaba', text: 'Poygada 20 marta 1-o‘rinni oling', prog: function (s) { return [Math.min(20, s.firsts || 0), 20]; } }
+  };
+  function grantPrizes(s) {
+    var got = [];
+    Object.keys(Y.cars).forEach(function (k) { var c = Y.cars[k]; if (!c.win || (s.cars || []).indexOf(k) >= 0) return; var p = WIN[c.win].prog(s); if (p[0] >= p[1]) { s.cars = (s.cars || []).concat([k]); got.push(c.name); } });
+    return got;
+  }
   var armed = null;
   function lockCars() {
     document.querySelectorAll('.car-choice.kcar').forEach(function (b) {
       var k = b.dataset.car, own = ownsCar(k), pr = b.querySelector('.kprice');
       b.classList.toggle('klock', !own);
-      if (!own && !pr) { pr = document.createElement('span'); pr.className = 'price kprice'; pr.innerHTML = Y.icon('coin', null, 13) + Y.cars[k].price.toLocaleString('ru-RU'); b.appendChild(pr); }
+      if (!own && !pr) { pr = document.createElement('span'); pr.className = 'price kprice'; pr.innerHTML = Y.cars[k].win ? '🏆 ' + WIN[Y.cars[k].win].label : Y.icon('coin', null, 13) + Y.cars[k].price.toLocaleString('ru-RU'); b.appendChild(pr); }
       if (own && pr) pr.remove();
     });
   }
@@ -53,11 +64,13 @@
     var b = e.target.closest && e.target.closest('.car-choice.kcar'); if (!b || ownsCar(b.dataset.car)) return;
     e.stopImmediatePropagation(); e.preventDefault();
     var k = b.dataset.car, c = Y.cars[k], s = Y.state();
+    if (c.win) { var w = WIN[c.win], pg = w.prog(s); Y.toast(c.name + ' — sovrin. ' + w.text + ' (' + pg[0] + '/' + pg[1] + ')'); return; }
     if ((s.coins || 0) < c.price) { Y.toast(c.name + ' — ' + c.price.toLocaleString('ru-RU') + ' tanga. Tanga yetmaydi — do‘konga o‘tilmoqda'); setTimeout(function () { location.href = '/#shop'; }, 900); return; }
     if (armed !== k) { armed = k; Y.toast(c.name + 'ni ' + c.price.toLocaleString('ru-RU') + ' tangaga olish uchun yana bir marta bosing'); return; }
     armed = null; s.coins -= c.price; s.cars = (s.cars || []).concat([k]); Y.save(s); st = s; Y.haptic('heavy'); Y.toast(c.name + ' garajingizga qo‘shildi!'); lockCars();
     document.dispatchEvent(new CustomEvent('yolchi:wallet')); b.click();
   }, true);
+  (function () { var s0 = Y.state(), g0 = grantPrizes(s0); if (g0.length) { Y.save(s0); st = s0; } })();
   lockCars();
   // Saqlangan mashina hali ochilmagan bo'lsa — Gentraga qaytamiz
   if (!ownsCar(cur.car)) { try { var rr = JSON.parse(localStorage.getItem('bts-racer') || '{}'); rr.car = 'gentra'; localStorage.setItem('bts-racer', JSON.stringify(rr)); } catch (e) {} cur.car = 'gentra'; }
@@ -136,7 +149,8 @@
     var meSt = net && net.states && net.states.filter(function (x) { return x.id === net.id; })[0], driftPts = Math.round(meSt && meSt.score || 0), driftCoins = finished ? Math.min(40, Math.floor(driftPts / 400) * 5) : 0;
     coinsWon += driftCoins;
     if (st.vip) coinsWon *= 2;
-    st.coins += coinsWon; st.xp += xp; if (finished) { st.racesToday = (st.racesToday || 0) + 1; st.races = (st.races || 0) + 1; if (n > 1 && place === 1 && !solo) st.wins = (st.wins || 0) + 1; }
+    st.coins += coinsWon; st.xp += xp; if (finished) { st.racesToday = (st.racesToday || 0) + 1; st.races = (st.races || 0) + 1; if (n > 1 && place === 1 && !solo) st.wins = (st.wins || 0) + 1; if (n > 1 && place === 1) { st.firsts = (st.firsts || 0) + 1; st.trkWin = st.trkWin || {}; st.trkWin[TR.id] = 1; } }
+    var prizes = finished ? grantPrizes(st) : [];
     if (finished && (solo || n === 1) && time && (!bestOf(st) || time < bestOf(st))) setBest(st, time);
     Y.save(st); coins();
     $('rwCoins').textContent = '+' + coinsWon;
@@ -145,6 +159,7 @@
     $('rwLv').textContent = lv.lv + '-daraja'; $('rwLvNum').textContent = lv.cur + ' / ' + lv.need; $('rwLvBar').style.width = Math.round(lv.cur / lv.need * 100) + '%';
     $('placeLine').textContent = n > 1 ? (place + '-o‘rin · ' + n + (solo ? ' mashina' : ' o‘yinchi') + (time ? ' · ' + time : '') + (solo && finished && bestOf(st) === time ? ' · yangi rekord!' : '')) : (finished ? 'Vaqtingiz: ' + time + (bestOf(st) === time ? ' · yangi rekord!' : '') : 'Poyga yakunlanmadi');
     resultText = n > 1 ? 'Yo‘lchi’da ' + TR.name + ' poygasida ' + place + '-o‘rinni oldim! 🏁' : 'Yo‘lchi’da ' + TR.name + ': ' + (time || '3 aylana') + ' ⏱ Meni yengib ko‘r!';
+    if (prizes.length) { setTimeout(function () { Y.toast('🏆 ' + prizes.join(', ') + ' yutib olindi! Garajda ochildi'); lockCars(); }, 900); }
     if (driftPts > 50) $('placeLine').textContent += ' · drift ' + driftPts + (driftCoins ? ' (+' + driftCoins + ' tanga)' : '');
     Y.haptic('heavy');
   }

@@ -120,12 +120,15 @@
     gentra: { name: 'Gentra', sub: '1.5 · mexanika', cls: 'Sedan · 1-sinf', speed: 187, acc: 5.1, brake: 12.5, steer: 0.53 },
     cobalt: { name: 'Cobalt', sub: '2014 · LTZ', cls: 'Sedan · 1-sinf', speed: 176, acc: 4.9, brake: 12.4, steer: 0.53 },
     malibu: { name: 'Malibu', sub: '2019 · Premier', cls: 'Sedan · 2-sinf', speed: 220, acc: 6.8, brake: 13.2, steer: 0.49 },
-    sport: { k: 1, price: 3000, name: 'Sport', sub: 'Kupe · turbo', cls: 'Kupe · 2-sinf', speed: 209, acc: 6.4, brake: 13.4, steer: 0.52 },
-    pikap: { k: 1, price: 4000, name: 'Pikap', sub: '4x4 · dizel', cls: 'Pikap · 1-sinf', speed: 180, acc: 5.6, brake: 12.2, steer: 0.5 },
-    jip: { k: 1, price: 5000, name: 'Jip', sub: 'Lyuks · 3.0', cls: 'Yo‘ltanlamas · 2-sinf', speed: 198, acc: 6, brake: 12.8, steer: 0.5 },
-    bolid: { k: 1, price: 9000, name: 'Bolid', sub: 'Formula · poyga', cls: 'Poyga · 3-sinf', speed: 238, acc: 7.6, brake: 14.5, steer: 0.47 }
+    damas: { price: 1500, name: 'Damas', sub: '0.8 · mikroavtobus', cls: 'Mikroavtobus · 1-sinf', speed: 130, acc: 3.8, brake: 11, steer: 0.55 },
+    nexia: { price: 2500, name: 'Nexia 2', sub: '1.5 · mexanika', cls: 'Sedan · 1-sinf', speed: 169, acc: 4.6, brake: 12, steer: 0.53 },
+    onix: { price: 4000, name: 'Onix', sub: '1.2 Turbo · avtomat', cls: 'Sedan · 2-sinf', speed: 194, acc: 5.6, brake: 12.8, steer: 0.52 },
+    tracker: { win: 'firsts5', name: 'Tracker', sub: '1.2 Turbo · krossover', cls: 'Krossover · sovrin', speed: 198, acc: 5.8, brake: 12.8, steer: 0.51 },
+    equinox: { win: 'tracks', name: 'Equinox', sub: 'RS · 1.5 Turbo', cls: 'Krossover · sovrin', speed: 209, acc: 6.3, brake: 13, steer: 0.5 },
+    tahoe: { win: 'firsts20', name: 'Tahoe', sub: 'RST · 5.3 V8', cls: 'Yo‘ltanlamas · sovrin', speed: 216, acc: 6.6, brake: 13, steer: 0.47 }
   };
-  function carImage(car, color) { if (CARS[car] && CARS[car].k) return '/ui/cars/k-' + car + '.png'; return '/ui/cars/' + car + '-' + String(color || '#e5e7eb').replace('#', '').toLowerCase() + '.webp'; }
+  var HEX = ['e5e7eb', '28313e', '36799b', 'ac393f', 'c5c0a5'];
+  function carImage(car, color) { var h = String(color || '#e5e7eb').replace('#', '').toLowerCase(); if (CARS[car] && (CARS[car].price || CARS[car].win) && HEX.indexOf(h) < 0) h = 'e5e7eb'; return '/ui/cars/' + car + '-' + h + '.webp'; }
 
   /* ---------- Yordamchilar ---------- */
   var toastEl, toastT;
